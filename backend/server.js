@@ -158,28 +158,89 @@ async function connectToWhatsApp() {
                     // Query real ERP provider API if configured
                     if (dbConfig.providerActive && dbConfig.providerUrl) {
                         try {
-                            console.log(`Efetuando chamada ao ERP para CPF: ${cleanCpf}`);
-                            const url = `${dbConfig.providerUrl.replace(/\/$/, '')}/fatura?cpf=${cleanCpf}`;
-                            const headers = { 'Content-Type': 'application/json' };
-                            if (dbConfig.providerToken) {
-                                headers['Authorization'] = `Bearer ${dbConfig.providerToken}`;
-                            }
+                            const isAsaas = dbConfig.providerUrl.includes('asaas.com');
+                            if (isAsaas) {
+                                console.log(`Efetuando consulta Asaas API para o CPF: ${cleanCpf}`);
+                                // 1. Find customer ID by CPF/CNPJ
+                                const customerUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/customers?cpfCnpj=${cleanCpf}`;
+                                const customerRes = await fetch(customerUrl, {
+                                    method: 'GET',
+                                    headers: { 'access_token': dbConfig.providerToken }
+                                });
 
-                            const response = await fetch(url, {
-                                method: 'GET',
-                                headers: headers
-                            });
+                                if (customerRes.ok) {
+                                    const customerData = await customerRes.json();
+                                    if (customerData.data && customerData.data.length > 0) {
+                                        const customerId = customerData.data[0].id;
+                                        const customerName = customerData.data[0].name;
+                                        console.log(`Cliente Asaas encontrado: ${customerName} (${customerId})`);
 
-                            if (response.ok) {
-                                const data = await response.json();
-                                if (data && (data.valor || data.valor_fatura)) {
-                                    invoice = {
-                                        titular: data.titular || data.nome_cliente || 'Cliente Provedor',
-                                        plano: data.plano || data.nome_plano || 'Internet Fibra Óptica',
-                                        vencimento: data.vencimento || data.data_vencimento || 'A vencer',
-                                        valor: data.valor || data.valor_fatura,
-                                        pix: data.pix || data.copia_cola || ''
-                                    };
+                                        // 2. Fetch pending payments for this customer
+                                        const paymentsUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments?customer=${customerId}&status=PENDING&limit=1`;
+                                        const paymentsRes = await fetch(paymentsUrl, {
+                                            method: 'GET',
+                                            headers: { 'access_token': dbConfig.providerToken }
+                                        });
+
+                                        if (paymentsRes.ok) {
+                                            const paymentsData = await paymentsRes.json();
+                                            if (paymentsData.data && paymentsData.data.length > 0) {
+                                                const payment = paymentsData.data[0];
+                                                const paymentId = payment.id;
+                                                const value = payment.value;
+                                                const dueDate = payment.dueDate; // YYYY-MM-DD
+                                                const formattedDate = dueDate.split('-').reverse().join('/');
+                                                const description = payment.description || 'Fatura Internet Ultra Fibra';
+
+                                                // 3. Fetch Pix Copy-and-Paste Payload
+                                                const pixUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments/${paymentId}/pixQrCode`;
+                                                const pixRes = await fetch(pixUrl, {
+                                                    method: 'GET',
+                                                    headers: { 'access_token': dbConfig.providerToken }
+                                                });
+
+                                                let pixKey = '';
+                                                if (pixRes.ok) {
+                                                    const pixData = await pixRes.json();
+                                                    pixKey = pixData.payload || '';
+                                                }
+
+                                                invoice = {
+                                                    titular: customerName,
+                                                    plano: description,
+                                                    vencimento: formattedDate,
+                                                    valor: `R$ ${value.toFixed(2).replace('.', ',')}`,
+                                                    pix: pixKey
+                                                };
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                // Generic ERP API Call
+                                console.log(`Efetuando chamada ao ERP genérico para CPF: ${cleanCpf}`);
+                                const url = `${dbConfig.providerUrl.replace(/\/$/, '')}/fatura?cpf=${cleanCpf}`;
+                                const headers = { 'Content-Type': 'application/json' };
+                                if (dbConfig.providerToken) {
+                                    headers['Authorization'] = `Bearer ${dbConfig.providerToken}`;
+                                }
+
+                                const response = await fetch(url, {
+                                    method: 'GET',
+                                    headers: headers
+                                });
+
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    if (data && (data.valor || data.valor_fatura)) {
+                                        invoice = {
+                                            titular: data.titular || data.nome_cliente || 'Cliente Provedor',
+                                            plano: data.plano || data.nome_plano || 'Internet Fibra Óptica',
+                                            vencimento: data.vencimento || data.data_vencimento || 'A vencer',
+                                            valor: data.valor || data.valor_fatura,
+                                            pix: data.pix || data.copia_cola || ''
+                                        };
+                                    }
                                 }
                             }
                         } catch (err) {
