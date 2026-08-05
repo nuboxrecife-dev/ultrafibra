@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | Painel Ultra Bot</title>
+  <meta name="description" content="Acesso restrito ao Painel Administrativo da Ultra Fibra.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand-orange: #FF6600;
+      --brand-orange-light: #FF8833;
+      --bg-dark: #080504;
+      --glass-bg: rgba(255,255,255,0.04);
+      --border-color: rgba(255,102,0,0.18);
+      --text-muted: rgba(255,255,255,0.45);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated background orbs */
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.18;
+      pointer-events: none;
+      animation: floatOrb 12s ease-in-out infinite alternate;
+    }
+    .bg-orb-1 { width: 500px; height: 500px; background: var(--brand-orange); top: -100px; left: -100px; animation-delay: 0s; }
+    .bg-orb-2 { width: 350px; height: 350px; background: #FF3300; bottom: -80px; right: -80px; animation-delay: 4s; }
+    .bg-orb-3 { width: 250px; height: 250px; background: #FF9900; top: 40%; left: 60%; animation-delay: 8s; }
+
+    @keyframes floatOrb {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    /* Login card */
+    .login-card {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      padding: 48px 40px;
+      background: rgba(12, 8, 6, 0.75);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      box-shadow: 0 0 60px rgba(255,102,0,0.15), 0 30px 80px rgba(0,0,0,0.5);
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Logo area */
+    .logo-area {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .logo-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,102,0,0.15), rgba(255,51,0,0.08));
+      border: 2px solid var(--brand-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 30px rgba(255,102,0,0.3);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 25px rgba(255,102,0,0.25); }
+      50% { box-shadow: 0 0 45px rgba(255,102,0,0.5); }
+    }
+
+    .logo-icon i { font-size: 2.4rem; color: var(--brand-orange-light); }
+
+    .logo-area h1 {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+
+    .logo-area p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+    }
+
+    /* Brand line */
+    .brand-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .brand-line::before, .brand-line::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-color);
+    }
+
+    .brand-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--brand-orange);
+    }
+
+    /* Form */
+    .form-group { margin-bottom: 20px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 16px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      transition: color 0.3s;
+      pointer-events: none;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 14px 16px 14px 46px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--brand-orange);
+      box-shadow: 0 0 20px rgba(255,102,0,0.15);
+    }
+
+    .input-wrapper input:focus + i,
+    .input-wrapper:focus-within i { color: var(--brand-orange-light); }
+
+    /* Fix: icon needs to be before input in DOM but positioned absolutely */
+    .input-wrapper .icon-left { position: absolute; left: 16px; z-index: 1; }
+    .input-wrapper .toggle-pass {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .input-wrapper .toggle-pass:hover { color: var(--brand-orange-light); }
+
+    /* Submit button */
+    .btn-login {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--brand-orange), #FF4400);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+      box-shadow: 0 8px 25px rgba(255,102,0,0.35);
+      letter-spacing: 0.3px;
+    }
+
+    .btn-login:hover {
+      background: linear-gradient(135deg, #FF8833, #FF5500);
+      box-shadow: 0 12px 35px rgba(255,102,0,0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-login:active { transform: translateY(0); }
+
+    .btn-login.loading { opacity: 0.7; pointer-events: none; }
+
+    /* Error message */
+    .error-msg {
+      display: none;
+      background: rgba(255, 0, 60, 0.1);
+      border: 1px solid rgba(255, 0, 60, 0.3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #FF4466;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 16px;
+      text-align: center;
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    /* Footer */
+    .login-footer {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+    }
+  </style>
+</head>
+<body>
+  <!-- Background orbs -->
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+
+  <div class="login-card">
+    <div class="logo-area">
+      <div class="logo-icon">
+        <i class="ri-robot-2-fill"></i>
+      </div>
+      <h1>Painel Ultra Bot</h1>
+      <p>Acesso restrito — apenas administradores</p>
+    </div>
+
+    <div class="brand-line">
+      <span class="brand-label">Ultra Fibra</span>
+    </div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginUser">Usuário</label>
+        <div class="input-wrapper">
+          <i class="ri-user-3-line icon-left"></i>
+          <input type="text" id="loginUser" placeholder="Digite seu usuário" autocomplete="username" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="loginPassword">Senha</label>
+        <div class="input-wrapper">
+          <i class="ri-lock-2-line icon-left"></i>
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+          <button type="button" class="toggle-pass" id="togglePass" title="Mostrar/ocultar senha">
+            <i class="ri-eye-line" id="togglePassIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" id="loginBtn">
+        <i class="ri-login-box-line"></i>
+        <span id="loginBtnText">Entrar no Painel</span>
+      </button>
+    </form>
+
+    <div class="error-msg" id="errorMsg">
+      ⚠️ Usuário ou senha incorretos. Tente novamente.
+    </div>
+
+    <div class="login-footer">Ultra Fibra Telecom &copy; 2026 — Sistema Interno</div>
+  </div>
+
+  <script>
+    const API_URL = 'https://ultrafibra.onrender.com';
+
+    // Redirect if already logged in
+    if (sessionStorage.getItem('admin_token') === 'session_token_secure_ultrafibra_2026') {
+      window.location.href = 'admin.html';
+    }
+
+    // Toggle password visibility
+    document.getElementById('togglePass').addEventListener('click', () => {
+      const input = document.getElementById('loginPassword');
+      const icon = document.getElementById('togglePassIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'ri-eye-off-line';
+      } else {
+        input.type = 'password';
+        icon.className = 'ri-eye-line';
+      }
+    });
+
+    // Login form submit
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('loginUser').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginBtn');
+      const btnText = document.getElementById('loginBtnText');
+      const errorMsg = document.getElementById('errorMsg');
+
+      btn.classList.add('loading');
+      btnText.textContent = 'Verificando...';
+      errorMsg.style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_URL}/api/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success && data.token) {
+          sessionStorage.setItem('admin_token', data.token);
+          sessionStorage.setItem('admin_name', data.name || username);
+          sessionStorage.setItem('admin_role', data.role || 'admin');
+          btnText.textContent = 'Redirecionando...';
+          setTimeout(() => { window.location.href = 'admin.html'; }, 500);
+        } else {
+          throw new Error('unauthorized');
+        }
+      } catch {
+        btn.classList.remove('loading');
+        btnText.textContent = 'Entrar no Painel';
+        errorMsg.style.display = 'block';
+        document.getElementById('loginPassword').value = '';
+        setTimeout(() => { errorMsg.style.display = 'none'; }, 4000);
+      }
+    });
+  </script>
+</body>
+</html>
