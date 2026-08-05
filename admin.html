@@ -163,6 +163,13 @@
             <span style="font-size: 0.75rem; color: var(--text-muted);">Inclua o código de país (55) e o DDD.</span>
           </div>
 
+          <!-- Backend API URL -->
+          <div class="form-group">
+            <label for="apiUrl">Endereço da API do Bot (Backend)</label>
+            <input type="text" id="apiUrl" class="form-control" placeholder="Ex: http://localhost:3001">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Use http://localhost:3001 para rodar localmente ou a URL pública da sua hospedagem (Render/Railway).</span>
+          </div>
+
           <!-- Welcome / Greeting Message -->
           <div class="form-group">
             <label for="welcomeMessage">Mensagem de Saudação do Bot</label>
@@ -261,7 +268,7 @@
             </div>
 
             <p id="wwebInstruction" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; max-width: 320px; margin: 0 auto;">
-              Iniciando conexão com o servidor do chatbot local.
+              Iniciando conexão com o servidor do chatbot.
             </p>
           </div>
         </div>
@@ -306,10 +313,10 @@
   <!-- Custom Admin Portal Script -->
   <script>
     const STORAGE_KEY = 'ultra_bot_config';
-    const BACKEND_URL = 'http://localhost:3001'; // Default local Node.js port
     
     const DEFAULT_CONFIG = {
       whatsappNumber: '55991183681',
+      apiUrl: 'http://localhost:3001',
       welcomeMessage: 'Olá! 👋 Sou o <strong>Ultra Bot</strong>. Por favor, escolha uma das opções abaixo para iniciarmos seu atendimento:',
       invoices: {
         '12345678900': {
@@ -334,6 +341,7 @@
     // Elements
     const formSettings = document.getElementById('adminSettingsForm');
     const waInput = document.getElementById('waNumber');
+    const apiInput = document.getElementById('apiUrl');
     const welcomeInput = document.getElementById('welcomeMessage');
     const welcomePreview = document.getElementById('chatWelcomePreview');
     const resetBtn = document.getElementById('resetBtn');
@@ -360,6 +368,7 @@
 
     function updateUI() {
       waInput.value = config.whatsappNumber;
+      apiInput.value = config.apiUrl || 'http://localhost:3001';
       welcomeInput.value = config.welcomeMessage;
       welcomePreview.innerHTML = config.welcomeMessage;
 
@@ -388,6 +397,7 @@
     formSettings.addEventListener('submit', (e) => {
       e.preventDefault();
       config.whatsappNumber = waInput.value.trim();
+      config.apiUrl = apiInput.value.trim();
       config.welcomeMessage = welcomeInput.value.trim();
       saveConfig();
       alert("Configurações salvas com sucesso!");
@@ -432,7 +442,8 @@
 
     // --- INTEGRATION: SYNC WITH REAL WHATSAPP WEB BACKEND ---
     function syncWithBackend() {
-      fetch(`${BACKEND_URL}/api/config`, {
+      const url = config.apiUrl || 'http://localhost:3001';
+      fetch(`${url}/api/config`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -441,12 +452,13 @@
       })
       .then(res => res.json())
       .then(data => console.log('Sincronização do backend efetuada:', data))
-      .catch(err => console.log('Nota: Servidor backend do WhatsApp local não iniciado ainda.'));
+      .catch(err => console.log('Nota: Servidor backend do WhatsApp não alcançado. Verifique se o endereço da API está correto.'));
     }
 
     // Poll WhatsApp connection status from backend
     function pollWhatsAppStatus() {
-      fetch(`${BACKEND_URL}/api/status`)
+      const url = config.apiUrl || 'http://localhost:3001';
+      fetch(`${url}/api/status`)
       .then(res => res.json())
       .then(data => {
         if (data.status === 'CONNECTED') {
@@ -478,7 +490,7 @@
         wwebStatusBadge.style.color = '#FF0055';
         wwebStatusBadge.innerText = 'DESCONECTADO';
         wwebQrContainer.style.display = 'none';
-        wwebInstruction.innerHTML = '⚠️ O backend Node.js não está rodando. Execute <strong>npm run start</strong> na pasta <code>backend/</code> para iniciar.';
+        wwebInstruction.innerHTML = '⚠️ O backend Node.js não está respondendo. Verifique se o endereço da API está correto ou se o backend está sendo executado.';
       });
     }
 
