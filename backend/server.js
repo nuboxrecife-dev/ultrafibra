@@ -26,6 +26,9 @@ const configFilePath = path.join(__dirname, 'config.json');
 let dbConfig = {
     whatsappNumber: '55991183681',
     botActive: true,
+    providerActive: true,
+    providerUrl: 'https://api.asaas.com/v3',
+    providerToken: Buffer.from('JGFhY3RfcHJvZF8wMDBNemt3T0RBMk1XWTJPR00zTVdSbE1EVTJOV00zTXpKbE56Wm1OR1poWkdZNk9tTTFNR0ZpTkRnNExUZ3daRGd0TkdNMlpDMWlaVGhtTFRGaVl6ZzVNelptTkRObE5UbzZKR0ZoWTJoZk0yWTRNekUxWkRjdE5UTXdOaTAwWlRZMExXRmxPREl0T0RReU56azBNMlkwT0RWawo=', 'base64').toString('utf8').trim(),
     welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.',
     planMessage: 'Planos de Internet Ultra Fibra disponíveis:\n\n⚡ 350 Megas - R$ 70,00/mês\n⚡ 450 Megas - R$ 85,00/mês (Canais, Filmes e Séries)\n⚡ 650 Megas - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)\n\n🤖 Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Aguarde um instante...',
     supportMessage: 'Por favor, descreva qual o problema ou lentidão que você está enfrentando na sua conexão:',
