@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ULTRA FIBRA - INTEGRATED CHATBOT & 2ª VIA FATURA ENGINE (FLYER INTEGRATED)
+   ULTRA FIBRA - DYNAMIC INTEGRATED CHATBOT & 2ª VIA ENGINE
    ========================================================================== */
 
 class UltraBot {
@@ -7,10 +7,45 @@ class UltraBot {
     this.isOpen = false;
     this.step = 'INITIAL';
     this.userCpf = '';
-    this.whatsappNumber = '55991183681'; // Official flyer phone
     
+    // Load config from localStorage or fallback to default flyer options
+    this.loadConfig();
+
     this.initDOM();
     this.bindEvents();
+  }
+
+  loadConfig() {
+    const DEFAULT_CONFIG = {
+      whatsappNumber: '55991183681',
+      welcomeMessage: 'Olá! 👋 Sou o <strong>Ultra Bot</strong> da Ultra Fibra. Como posso te ajudar hoje?',
+      invoices: {
+        '12345678900': {
+          titular: 'João da Silva',
+          cpf: '123.456.789-00',
+          plano: 'Ultra Fibra 650 Megas Destaque + TV',
+          vencimento: '10/08/2026',
+          valor: 'R$ 99,90'
+        },
+        '98765432100': {
+          titular: 'Maria de Souza',
+          cpf: '987.654.321-00',
+          plano: 'Ultra Fibra 450 Megas',
+          vencimento: '15/08/2026',
+          valor: 'R$ 85,00'
+        }
+      }
+    };
+
+    const stored = localStorage.getItem('ultra_bot_config');
+    if (stored) {
+      this.config = JSON.parse(stored);
+    } else {
+      this.config = DEFAULT_CONFIG;
+      localStorage.setItem('ultra_bot_config', JSON.stringify(DEFAULT_CONFIG));
+    }
+
+    this.whatsappNumber = this.config.whatsappNumber;
   }
 
   initDOM() {
@@ -59,19 +94,34 @@ class UltraBot {
   }
 
   async startWelcomeFlow() {
+    // Reload config in case it changed in the admin panel
+    this.loadConfig();
+
     await this.showTyping(600);
-    this.addBotMessage(`Olá! 👋 Sou o <strong>Ultra Bot</strong> da Ultra Fibra. Como posso te ajudar hoje?`, [
+    this.addBotMessage(this.config.welcomeMessage, [
       { text: '📄 2ª Via de Fatura (CPF)', action: () => this.promptCpfForInvoice() },
       { text: '🚀 Assinar um Plano Fibra', action: () => this.redirectToWhatsApp('Quero assinar um plano de internet Ultra Fibra') },
       { text: '⚡ Teste de Velocidade', action: () => this.scrollToSection('velocidade') },
       { text: '🔧 Suporte Técnico', action: () => this.redirectToWhatsApp('Preciso de suporte técnico na minha conexão Ultra Fibra') },
-      { text: '👤 Falar no WhatsApp (9 9118-3681)', action: () => this.redirectToWhatsApp('Olá, gostaria de atendimento da Ultra Fibra') }
+      { text: `👤 Falar no WhatsApp (${this.formatPhoneNumber(this.whatsappNumber)})`, action: () => this.redirectToWhatsApp('Olá, gostaria de falar com um atendente da Ultra Fibra') }
     ]);
+  }
+
+  formatPhoneNumber(num) {
+    if (num.length >= 11) {
+      // 55991183681 -> 9 9118-3681 or (99) 9118-3681
+      const ddd = num.substring(2, 4);
+      const first = num.substring(4, 5);
+      const rest1 = num.substring(5, 9);
+      const rest2 = num.substring(9);
+      return `(${ddd}) ${first} ${rest1}-${rest2}`;
+    }
+    return num;
   }
 
   promptCpfForInvoice() {
     this.step = 'AWAITING_CPF';
-    this.addBotMessage(`Para consultar a sua 2ª via de fatura, por favor <strong>digite o seu CPF ou CNPJ</strong> do titular:`);
+    this.addBotMessage(`Para consultar a sua 2ª via de fatura, por favor <strong>digite o seu CPF ou CNPJ</strong> do titular da conta:`);
     this.chatInput.placeholder = "Digite seu CPF (ex: 123.456.789-00)";
     this.chatInput.focus();
   }
@@ -94,28 +144,40 @@ class UltraBot {
     const cleanCpf = cpfInput.replace(/\D/g, '');
     if (cleanCpf.length < 11) {
       await this.showTyping(500);
-      this.addBotMessage(`⚠️ CPF/CNPJ inválido. Por favor, digite os 11 dígitos do seu CPF (ou 14 do CNPJ):`);
+      this.addBotMessage(`⚠️ CPF/CNPJ inválido. Por favor, digite os 11 dígitos do CPF (ou 14 do CNPJ):`);
       return;
     }
 
-    this.userCpf = cpfInput;
+    this.userCpf = cleanCpf;
     await this.showTyping(1000);
     
-    this.step = 'INVOICE_DISPLAYED';
-    this.addBotMessage(`✅ Localizamos seu contrato! Aqui está a sua fatura em aberto:`);
-    
-    this.renderInvoiceCard({
-      titular: 'Cliente Ultra Fibra',
-      cpf: cpfInput,
-      plano: 'Ultra Fibra 650 Megas + TV',
-      vencimento: this.getUpcomingDueDate(),
-      valor: 'R$ 99,90',
-      pixCode: '00020126580014BR.GOV.BCB.PIX013612345678-90ab-cdef-1234-567890abcdef520400005303986540599.905802BR5920ULTRA FIBRA TELECOM6009SAO PAULO62070503***6304E8A9'
-    });
+    // Reload configs
+    this.loadConfig();
+    const invoice = this.config.invoices[cleanCpf];
+
+    if (invoice) {
+      this.step = 'INVOICE_DISPLAYED';
+      this.addBotMessage(`✅ Localizamos seu contrato! Aqui estão os detalhes da sua fatura em aberto:`);
+      
+      this.renderInvoiceCard({
+        titular: invoice.titular,
+        cpf: invoice.cpf,
+        plano: invoice.plano,
+        vencimento: invoice.vencimento,
+        valor: invoice.valor,
+        pixCode: '00020126580014BR.GOV.BCB.PIX013612345678-90ab-cdef-1234-567890abcdef520400005303986540599.905802BR5920ULTRA FIBRA TELECOM6009SAO PAULO62070503***6304E8A9'
+      });
+    } else {
+      this.addBotMessage(`❌ Nenhuma fatura em aberto localizada para o CPF/CNPJ <strong>${cpfInput}</strong>. Deseja tentar outro CPF ou falar com um atendente?`, [
+        { text: '🔄 Digitar outro CPF', action: () => this.promptCpfForInvoice() },
+        { text: '👤 Falar com Atendente', action: () => this.redirectToWhatsApp('Preciso de ajuda para localizar minha fatura.') }
+      ]);
+      return;
+    }
 
     await this.showTyping(800);
     this.addBotMessage(`Como prefere receber a fatura?`, [
-      { text: '📱 Receber no WhatsApp (9 9118-3681)', action: () => this.sendInvoiceToWhatsApp() },
+      { text: '📱 Receber no WhatsApp', action: () => this.sendInvoiceToWhatsApp() },
       { text: '🔄 Consultar outro CPF', action: () => this.promptCpfForInvoice() },
       { text: '🏠 Menu Principal', action: () => this.startWelcomeFlow() }
     ]);
