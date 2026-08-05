@@ -18,6 +18,10 @@ let connectionStatus = 'DISCONNECTED'; // DISCONNECTED, INITIALIZING, AWAITING_Q
 // Session state map to track dialog steps for each user JID
 const sessions = new Map();
 
+// Config file path for local persistence
+const fs = require('fs');
+const configFilePath = path.join(__dirname, 'config.json');
+
 // Local DB configuration synced with admin panel
 let dbConfig = {
     whatsappNumber: '55991183681',
@@ -42,6 +46,17 @@ let dbConfig = {
         }
     }
 };
+
+// Load saved config on startup if it exists
+if (fs.existsSync(configFilePath)) {
+    try {
+        const fileContent = fs.readFileSync(configFilePath, 'utf8');
+        dbConfig = { ...dbConfig, ...JSON.parse(fileContent) };
+        console.log('Configurações salvas carregadas com sucesso de config.json');
+    } catch (err) {
+        console.error('Falha ao ler arquivo config.json:', err);
+    }
+}
 
 let sock = null;
 
@@ -294,6 +309,13 @@ app.get('/api/status', (req, res) => {
 app.post('/api/config', (req, res) => {
     if (req.body) {
         dbConfig = { ...dbConfig, ...req.body };
+        // Save to file persistently
+        try {
+            fs.writeFileSync(configFilePath, JSON.stringify(dbConfig, null, 2), 'utf8');
+            console.log('Configurações salvas de forma persistente em config.json');
+        } catch (err) {
+            console.error('Erro ao gravar arquivo config.json:', err);
+        }
     }
     res.json({ success: true, config: dbConfig });
 });
