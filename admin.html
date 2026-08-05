@@ -143,7 +143,7 @@
     }
 
     textarea.form-control {
-      min-height: 90px;
+      min-height: 120px;
       resize: vertical;
     }
 
@@ -159,11 +159,53 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      cursor: pointer;
+      border: none;
     }
 
     .btn-clean:hover {
       box-shadow: 0 0 30px rgba(255, 102, 0, 0.6);
       transform: translateY(-1px);
+    }
+
+    /* Dynamic Config Tabs selectors */
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 102, 0, 0.15);
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 102, 0, 0.1);
+    }
+
+    .tab-btn.active {
+      background: var(--grad-orange);
+      color: #FFFFFF;
+      border-color: var(--brand-orange);
+      box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* QR Code & Status UI */
@@ -389,30 +431,61 @@
             <h2>Configurações do Robô</h2>
           </div>
 
+          <!-- Tab Bar Selector -->
+          <div style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; overflow-x: auto;">
+            <button type="button" class="tab-btn active" onclick="switchConfigTab('tabWelcome')">Menu Inicial</button>
+            <button type="button" class="tab-btn" onclick="switchConfigTab('tabPlan')">Opção 1 (Planos)</button>
+            <button type="button" class="tab-btn" onclick="switchConfigTab('tabSupport')">Opção 3 (Suporte)</button>
+            <button type="button" class="tab-btn" onclick="switchConfigTab('tabAdvanced')">Conexão</button>
+          </div>
+
           <form id="adminSettingsForm">
-            <!-- WhatsApp Number -->
-            <div class="form-group">
-              <label for="waNumber">WhatsApp de Vendas/Atendimento</label>
-              <input type="text" id="waNumber" class="form-control" placeholder="Ex: 55991183681">
-              <span style="font-size: 0.75rem; color: var(--text-muted);">Informe com código de país (55) + DDD (ex: 55991183681).</span>
+            
+            <!-- TAB 1: WELCOME MENU -->
+            <div id="tabWelcome" class="tab-content active">
+              <div class="form-group">
+                <label for="welcomeMessage">Mensagem de Boas-Vindas & Menu</label>
+                <textarea id="welcomeMessage" class="form-control" placeholder="Mensagem inicial enviada aos clientes..."></textarea>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Defina a saudação e os caminhos (1, 2, 3) que o cliente deve escolher.</span>
+              </div>
             </div>
 
-            <!-- API Address Link -->
-            <div class="form-group">
-              <label for="apiUrl">Endereço do Servidor do Bot (API)</label>
-              <input type="text" id="apiUrl" class="form-control" placeholder="Ex: https://ultrafibra.onrender.com">
-              <span style="font-size: 0.75rem; color: var(--text-muted);">Caminho do backend hospedado no Render ou localmente.</span>
+            <!-- TAB 2: OPTION 1 PLANS RESPONSE -->
+            <div id="tabPlan" class="tab-content">
+              <div class="form-group">
+                <label for="planMessage">Mensagem da Opção 1 (Planos & Preços)</label>
+                <textarea id="planMessage" class="form-control" placeholder="Descreva os planos que o bot deve listar..."></textarea>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Essa mensagem é exibida antes de passar o controle para o atendimento humano.</span>
+              </div>
             </div>
 
-            <!-- Welcome Message Text -->
-            <div class="form-group">
-              <label for="welcomeMessage">Mensagem de Entrada / Boas-Vindas</label>
-              <textarea id="welcomeMessage" class="form-control" placeholder="Mensagem do menu inicial..."></textarea>
+            <!-- TAB 3: OPTION 3 SUPPORT RESPONSE -->
+            <div id="tabSupport" class="tab-content">
+              <div class="form-group">
+                <label for="supportMessage">Mensagem da Opção 3 (Suporte Técnico)</label>
+                <textarea id="supportMessage" class="form-control" placeholder="Pergunta inicial do suporte..."></textarea>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">O bot perguntará isso para o cliente detalhar o problema e em seguida entrará em espera.</span>
+              </div>
             </div>
 
-            <div style="display: flex; gap: 12px;">
+            <!-- TAB 4: ADVANCED / CONNECTION -->
+            <div id="tabAdvanced" class="tab-content">
+              <div class="form-group">
+                <label for="waNumber">WhatsApp de Vendas/Atendimento</label>
+                <input type="text" id="waNumber" class="form-control" placeholder="Ex: 55991183681">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Informe com código de país (55) + DDD.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="apiUrl">Endereço do Servidor do Bot (API URL)</label>
+                <input type="text" id="apiUrl" class="form-control" placeholder="Ex: https://ultrafibra.onrender.com">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">URL do servidor ativo no Render.</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
               <button type="submit" class="btn-clean" style="flex: 1;">
-                <i class="ri-save-fill"></i> Salvar Configurações
+                <i class="ri-save-fill"></i> Salvar Alterações
               </button>
               <button type="button" class="btn btn-outline" id="resetBtn" style="border-radius: var(--radius-pill); border-color: rgba(255,255,255,0.15);">
                 Limpar Cache
@@ -492,9 +565,14 @@
             <img id="wwebQrImg" src="" alt="QR Code para Autenticação">
           </div>
 
-          <p id="wwebInstruction" style="font-size: 0.85rem; text-align: center; color: var(--text-muted); max-width: 320px; line-height: 1.5;">
+          <p id="wwebInstruction" style="font-size: 0.85rem; text-align: center; color: var(--text-muted); max-width: 320px; line-height: 1.5; margin-bottom: 10px;">
             Verificando conexão com o servidor.
           </p>
+
+          <!-- DISCONNECT BUTTON (Only visible when connected) -->
+          <button id="wwebDisconnectBtn" type="button" style="display: none; margin-top: 15px; border: 1px solid #FF0055; background: rgba(255,0,85,0.05); color: #FF0055; width: 100%; max-width: 250px; padding: 10px; border-radius: 20px; font-weight: 700; font-family: inherit; cursor: pointer; align-items: center; justify-content: center; gap: 6px; transition: all 0.3s ease;">
+            <i class="ri-logout-box-r-line"></i> Desconectar WhatsApp
+          </button>
         </div>
 
         <!-- Dialogue Map Outline -->
@@ -572,6 +650,8 @@
       apiUrl: 'https://ultrafibra.onrender.com',
       botActive: true,
       welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.',
+      planMessage: 'Planos de Internet Ultra Fibra disponíveis:\n\n⚡ 350 Megas - R$ 70,00/mês\n⚡ 450 Megas - R$ 85,00/mês (Canais, Filmes e Séries)\n⚡ 650 Megas - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)\n\n🤖 Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Aguarde um instante...',
+      supportMessage: 'Por favor, descreva qual o problema ou lentidão que você está enfrentando na sua conexão:',
       invoices: {
         '12345678900': {
           titular: 'João da Silva',
@@ -610,11 +690,23 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
 
+    // Set default plan and support messages if undefined
+    if (config.planMessage === undefined) {
+      config.planMessage = DEFAULT_CONFIG.planMessage;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    }
+    if (config.supportMessage === undefined) {
+      config.supportMessage = DEFAULT_CONFIG.supportMessage;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    }
+
     // Form inputs
     const formSettings = document.getElementById('adminSettingsForm');
     const waInput = document.getElementById('waNumber');
     const apiInput = document.getElementById('apiUrl');
     const welcomeInput = document.getElementById('welcomeMessage');
+    const planInput = document.getElementById('planMessage');
+    const supportInput = document.getElementById('supportMessage');
     const tableBody = document.getElementById('invoiceTableBody');
 
     // Invoice form fields
@@ -630,10 +722,22 @@
     const wwebQrContainer = document.getElementById('wwebQrContainer');
     const wwebQrImg = document.getElementById('wwebQrImg');
     const wwebInstruction = document.getElementById('wwebInstruction');
+    const wwebDisconnectBtn = document.getElementById('wwebDisconnectBtn');
     
     // Bot Active Toggle Switch components
     const botActiveToggle = document.getElementById('botActiveToggle');
     const botActiveStatusLabel = document.getElementById('botActiveStatusLabel');
+
+    // Tab Switch Controller
+    window.switchConfigTab = function(tabId) {
+      // Deactivate all tabs
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      // Activate clicked tab
+      event.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    };
 
     function saveConfig() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
@@ -645,6 +749,8 @@
       waInput.value = config.whatsappNumber;
       apiInput.value = config.apiUrl || 'https://ultrafibra.onrender.com';
       welcomeInput.value = config.welcomeMessage;
+      planInput.value = config.planMessage || '';
+      supportInput.value = config.supportMessage || '';
       
       // Update toggle state
       botActiveToggle.checked = config.botActive !== false;
@@ -683,6 +789,8 @@
       config.whatsappNumber = waInput.value.trim();
       config.apiUrl = apiInput.value.trim();
       config.welcomeMessage = welcomeInput.value.trim();
+      config.planMessage = planInput.value.trim();
+      config.supportMessage = supportInput.value.trim();
       saveConfig();
       alert("Configurações atualizadas com sucesso!");
     });
@@ -691,6 +799,33 @@
     botActiveToggle.addEventListener('change', () => {
       config.botActive = botActiveToggle.checked;
       saveConfig();
+    });
+
+    // Disconnect event listener
+    wwebDisconnectBtn.addEventListener('click', () => {
+      if (confirm("Tem certeza de que deseja desconectar e remover esta conta de WhatsApp do bot? Será necessário ler o QR Code novamente.")) {
+        const url = config.apiUrl || 'https://ultrafibra.onrender.com';
+        wwebDisconnectBtn.disabled = true;
+        wwebDisconnectBtn.innerText = 'Processando desconexão...';
+        
+        fetch(`${url}/api/disconnect`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+          alert('WhatsApp desconectado com sucesso!');
+          wwebDisconnectBtn.disabled = false;
+          wwebDisconnectBtn.style.display = 'none';
+          wwebDisconnectBtn.innerHTML = '<i class="ri-logout-box-r-line"></i> Desconectar WhatsApp';
+          checkWhatsAppStatus();
+        })
+        .catch(err => {
+          alert('Erro ao se comunicar com o servidor para desconectar.');
+          wwebDisconnectBtn.disabled = false;
+          wwebDisconnectBtn.innerHTML = '<i class="ri-logout-box-r-line"></i> Desconectar WhatsApp';
+        });
+      }
     });
 
     // Reset default / Clear cache
@@ -759,11 +894,13 @@
           wwebStatusBadge.innerText = 'Conectado';
           wwebQrContainer.style.display = 'none';
           wwebInstruction.innerHTML = '🟢 <strong>Robô Operando!</strong> Ele responderá os clientes automaticamente no seu WhatsApp.';
+          wwebDisconnectBtn.style.display = 'inline-flex'; // Show disconnect button when connected
         } else if (data.status === 'AWAITING_QR') {
           wwebStatusBadge.className = 'wweb-status-badge loading';
           wwebStatusBadge.style.borderColor = 'var(--brand-teal)';
           wwebStatusBadge.style.color = 'var(--brand-teal)';
           wwebStatusBadge.innerText = 'Escaneie o QR Code';
+          wwebDisconnectBtn.style.display = 'none'; // Hide disconnect button
           
           if (data.qr) {
             wwebQrImg.src = data.qr;
@@ -774,6 +911,7 @@
           wwebStatusBadge.className = 'wweb-status-badge loading';
           wwebStatusBadge.innerText = 'Inicializando...';
           wwebQrContainer.style.display = 'none';
+          wwebDisconnectBtn.style.display = 'none'; // Hide disconnect button
           wwebInstruction.innerText = 'Conectando à API do WhatsApp Web. Por favor, aguarde...';
         }
       })
@@ -781,6 +919,7 @@
         wwebStatusBadge.className = 'wweb-status-badge disconnected';
         wwebStatusBadge.innerText = 'Desconectado';
         wwebQrContainer.style.display = 'none';
+        wwebDisconnectBtn.style.display = 'none'; // Hide disconnect button
         wwebInstruction.innerHTML = '⚠️ Servidor offline. Verifique se o bot no <strong>Render</strong> está rodando.';
       });
     }
