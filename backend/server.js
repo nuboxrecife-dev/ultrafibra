@@ -153,15 +153,54 @@ async function connectToWhatsApp() {
                         return;
                     }
 
-                    const invoice = dbConfig.invoices[cleanCpf];
+                    let invoice = null;
+
+                    // Query real ERP provider API if configured
+                    if (dbConfig.providerActive && dbConfig.providerUrl) {
+                        try {
+                            console.log(`Efetuando chamada ao ERP para CPF: ${cleanCpf}`);
+                            const url = `${dbConfig.providerUrl.replace(/\/$/, '')}/fatura?cpf=${cleanCpf}`;
+                            const headers = { 'Content-Type': 'application/json' };
+                            if (dbConfig.providerToken) {
+                                headers['Authorization'] = `Bearer ${dbConfig.providerToken}`;
+                            }
+
+                            const response = await fetch(url, {
+                                method: 'GET',
+                                headers: headers
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data && (data.valor || data.valor_fatura)) {
+                                    invoice = {
+                                        titular: data.titular || data.nome_cliente || 'Cliente Provedor',
+                                        plano: data.plano || data.nome_plano || 'Internet Fibra Óptica',
+                                        vencimento: data.vencimento || data.data_vencimento || 'A vencer',
+                                        valor: data.valor || data.valor_fatura,
+                                        pix: data.pix || data.copia_cola || ''
+                                    };
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Erro na integração do ERP:', err.message);
+                        }
+                    }
+
+                    // Fallback to local simulated invoices database
+                    if (!invoice) {
+                        invoice = dbConfig.invoices[cleanCpf];
+                    }
+
                     if (invoice) {
+                        const pixKey = invoice.pix || '00020126580014BR.GOV.BCB.PIX013612345678-90ab-cdef-1234-567890abcdef520400005303986540599.905802BR5920ULTRA FIBRA TELECOM6009SAO PAULO62070503***6304E8A9';
                         const reply = `✅ Localizamos sua fatura em aberto!\n\n` +
                                       `👤 Titular: ${invoice.titular}\n` +
                                       `⚡ Plano: ${invoice.plano}\n` +
                                       `📅 Vencimento: ${invoice.vencimento}\n` +
                                       `💵 Valor: ${invoice.valor}\n\n` +
                                       `🔑 Código PIX Copia e Cola:\n` +
-                                      `00020126580014BR.GOV.BCB.PIX013612345678-90ab-cdef-1234-567890abcdef520400005303986540599.905802BR5920ULTRA FIBRA TELECOM6009SAO PAULO62070503***6304E8A9\n\n` +
+                                      `${pixKey}\n\n` +
                                       `Você pode visualizar a fatura digital no nosso site. Digite 0 para voltar ao menu inicial.`;
                         await sock.sendMessage(from, { text: reply });
                         session.step = 'INITIAL';
