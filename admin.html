@@ -481,6 +481,31 @@
                 <input type="text" id="apiUrl" class="form-control" placeholder="Ex: https://ultrafibra.onrender.com">
                 <span style="font-size: 0.75rem; color: var(--text-muted);">URL do servidor ativo no Render.</span>
               </div>
+
+              <!-- Provider ERP Integration Fields -->
+              <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--brand-orange-light); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Integração com Provedor / ERP</h4>
+                
+                <div class="form-group" style="display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);">
+                  <label for="providerActiveToggle" style="margin-bottom: 0; flex: 1;">ATIVAR INTEGRAÇÃO REAL COM ERP</label>
+                  <label class="switch-toggle">
+                    <input type="checkbox" id="providerActiveToggle">
+                    <span class="slider-round"></span>
+                  </label>
+                </div>
+
+                <div class="form-group">
+                  <label for="providerUrl">URL da API do Provedor (ERP)</label>
+                  <input type="text" id="providerUrl" class="form-control" placeholder="Ex: https://provedor-erp.com/api">
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">A API de faturas será chamada passando o CPF (ex: GET /fatura?cpf=123).</span>
+                </div>
+
+                <div class="form-group">
+                  <label for="providerToken">Token de Autenticação do ERP</label>
+                  <input type="password" id="providerToken" class="form-control" placeholder="Insira o Token ou API Key">
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Será incluído no cabeçalho Authorization: Bearer TOKEN.</span>
+                </div>
+              </div>
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 20px;">
@@ -649,6 +674,9 @@
       whatsappNumber: '55991183681',
       apiUrl: 'https://ultrafibra.onrender.com',
       botActive: true,
+      providerActive: false,
+      providerUrl: '',
+      providerToken: '',
       welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.',
       planMessage: 'Planos de Internet Ultra Fibra disponíveis:\n\n⚡ 350 Megas - R$ 70,00/mês\n⚡ 450 Megas - R$ 85,00/mês (Canais, Filmes e Séries)\n⚡ 650 Megas - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)\n\n🤖 Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Aguarde um instante...',
       supportMessage: 'Por favor, descreva qual o problema ou lentidão que você está enfrentando na sua conexão:',
@@ -686,7 +714,7 @@
 
     // Force welcome message migration to include the 1, 2, 3 options list
     if (!config.welcomeMessage || (!config.welcomeMessage.includes('1') && !config.welcomeMessage.includes('1️⃣'))) {
-      config.welcomeMessage = 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.';
+      config.welcomeMessage = DEFAULT_CONFIG.welcomeMessage;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
 
@@ -700,6 +728,14 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
 
+    // Initialize provider defaults if undefined
+    if (config.providerActive === undefined) {
+      config.providerActive = false;
+      config.providerUrl = '';
+      config.providerToken = '';
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    }
+
     // Form inputs
     const formSettings = document.getElementById('adminSettingsForm');
     const waInput = document.getElementById('waNumber');
@@ -708,6 +744,11 @@
     const planInput = document.getElementById('planMessage');
     const supportInput = document.getElementById('supportMessage');
     const tableBody = document.getElementById('invoiceTableBody');
+    
+    // Provider ERP inputs
+    const providerActiveToggle = document.getElementById('providerActiveToggle');
+    const providerUrlInput = document.getElementById('providerUrl');
+    const providerTokenInput = document.getElementById('providerToken');
 
     // Invoice form fields
     const addInvoiceForm = document.getElementById('addInvoiceForm');
@@ -752,6 +793,11 @@
       planInput.value = config.planMessage || '';
       supportInput.value = config.supportMessage || '';
       
+      // Update Provider ERP inputs
+      providerActiveToggle.checked = config.providerActive === true;
+      providerUrlInput.value = config.providerUrl || '';
+      providerTokenInput.value = config.providerToken || '';
+      
       // Update toggle state
       botActiveToggle.checked = config.botActive !== false;
       if (botActiveToggle.checked) {
@@ -791,6 +837,12 @@
       config.welcomeMessage = welcomeInput.value.trim();
       config.planMessage = planInput.value.trim();
       config.supportMessage = supportInput.value.trim();
+      
+      // Save ERP configurations
+      config.providerActive = providerActiveToggle.checked;
+      config.providerUrl = providerUrlInput.value.trim();
+      config.providerToken = providerTokenInput.value.trim();
+      
       saveConfig();
       alert("Configurações atualizadas com sucesso!");
     });
@@ -910,7 +962,6 @@
         } else {
           wwebStatusBadge.className = 'wweb-status-badge loading';
           wwebStatusBadge.innerText = 'Inicializando...';
-          wwebQrContainer.style.display = 'none';
           wwebDisconnectBtn.style.display = 'none'; // Hide disconnect button
           wwebInstruction.innerText = 'Conectando à API do WhatsApp Web. Por favor, aguarde...';
         }
