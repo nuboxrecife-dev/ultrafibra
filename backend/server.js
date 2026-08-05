@@ -252,13 +252,14 @@ async function connectToWhatsApp() {
                                                     pixKey = pixData.payload || '';
                                                 }
 
-                                                invoice = {
-                                                    titular: customerName,
-                                                    plano: description,
-                                                    vencimento: formattedDate,
-                                                    valor: `R$ ${value.toFixed(2).replace('.', ',')}`,
-                                                    pix: pixKey
-                                                };
+                                                 invoice = {
+                                                     titular: customerName,
+                                                     plano: description,
+                                                     vencimento: formattedDate,
+                                                     valor: `R$ ${value.toFixed(2).replace('.', ',')}`,
+                                                     pix: pixKey,
+                                                     boleto: payment.bankSlipUrl || payment.invoiceUrl || ''
+                                                 };
                                             }
                                         }
                                     }
@@ -280,13 +281,14 @@ async function connectToWhatsApp() {
                                 if (response.ok) {
                                     const data = await response.json();
                                     if (data && (data.valor || data.valor_fatura)) {
-                                        invoice = {
-                                            titular: data.titular || data.nome_cliente || 'Cliente Provedor',
-                                            plano: data.plano || data.nome_plano || 'Internet Fibra Óptica',
-                                            vencimento: data.vencimento || data.data_vencimento || 'A vencer',
-                                            valor: data.valor || data.valor_fatura,
-                                            pix: data.pix || data.copia_cola || ''
-                                        };
+                                         invoice = {
+                                             titular: data.titular || data.nome_cliente || 'Cliente Provedor',
+                                             plano: data.plano || data.nome_plano || 'Internet Fibra Óptica',
+                                             vencimento: data.vencimento || data.data_vencimento || 'A vencer',
+                                             valor: data.valor || data.valor_fatura,
+                                             pix: data.pix || data.copia_cola || '',
+                                             boleto: data.boleto || data.link_boleto || data.bankSlipUrl || ''
+                                         };
                                     }
                                 }
                             }
@@ -314,8 +316,14 @@ async function connectToWhatsApp() {
                         
                         // 2. Send the raw PIX Copia e Cola code in a separate bubble
                         await sock.sendMessage(from, { text: pixKey });
+
+                        // 3. Send the Boleto PDF link if available
+                        if (invoice.boleto) {
+                             const boletoMsg = `📄 *Link para baixar o Boleto em PDF:*\n${invoice.boleto}`;
+                             await sock.sendMessage(from, { text: boletoMsg });
+                        }
                         
-                        // 3. Send the final instruction bubble
+                        // 4. Send the final instruction bubble
                         await sock.sendMessage(from, { text: `Você pode visualizar a fatura digital no nosso site.\n\nDigite 0 para voltar ao menu inicial.` });
                         
                         session.step = 'INITIAL';
