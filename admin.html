@@ -3,25 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Administrativo | Ultra Bot Configurações</title>
+  <title>Painel Administrativo | Ultra Bot Connection</title>
   
-  <!-- Remixicon -->
+  <!-- Remixicon Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
 
+  <!-- Core Google Font -->
   <link rel="stylesheet" href="css/main.css">
+  
   <style>
-    .admin-container {
-      padding-top: 40px;
-      padding-bottom: 80px;
-      max-width: 1100px;
-      margin: 0 auto;
+    :root {
+      --bg-dark-admin: #080504;
+      --bg-surface-admin: #0F0906;
+      --bg-card-admin: rgba(22, 13, 8, 0.65);
+      --border-color: rgba(255, 102, 0, 0.2);
+      --border-color-glow: rgba(255, 102, 0, 0.6);
     }
-    
+
+    body {
+      background-color: var(--bg-dark-admin);
+      background-image: radial-gradient(circle at 10% 10%, rgba(255, 102, 0, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 90% 90%, rgba(37, 211, 102, 0.05) 0%, transparent 50%);
+    }
+
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px 80px 24px;
+    }
+
+    /* Admin Navbar & Breadcrumbs */
+    .admin-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-nav-left a {
+      font-size: 0.85rem;
+      color: var(--brand-orange-light);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .admin-nav-left h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+
+    /* Two Column Layout Grid */
     .admin-grid {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1fr 1fr;
       gap: 32px;
-      margin-top: 30px;
+      align-items: start;
     }
 
     @media (max-width: 900px) {
@@ -30,287 +73,427 @@
       }
     }
 
+    /* Styling Cards */
+    .glass-card-admin {
+      background: var(--bg-card-admin);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .glass-card-admin:hover {
+      border-color: var(--border-color-glow);
+    }
+
+    .card-header-clean {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .card-header-clean i {
+      font-size: 1.5rem;
+      color: var(--brand-orange);
+    }
+
+    .card-header-clean h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: 0.5px;
+    }
+
+    /* Form Fields */
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .form-group label {
       display: block;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--brand-orange-light);
-      font-size: 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
     }
 
     .form-control {
       width: 100%;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--brand-orange);
-      border-radius: var(--radius-sm);
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+      padding: 14px 18px;
+      border-radius: 12px;
       color: #FFFFFF;
       font-size: 0.95rem;
       outline: none;
-      font-family: inherit;
+      transition: all 0.3s ease;
     }
 
     .form-control:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 10px rgba(255, 179, 0, 0.2);
+      border-color: var(--brand-orange-light);
+      box-shadow: 0 0 15px rgba(255, 102, 0, 0.15);
     }
 
     textarea.form-control {
+      min-height: 90px;
       resize: vertical;
-      min-height: 100px;
     }
 
-    .admin-header {
-      border-bottom: 2px solid var(--brand-orange);
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-title-icon {
+    .btn-clean {
+      width: 100%;
+      padding: 14px;
+      background: var(--grad-orange);
+      color: #FFFFFF;
+      font-weight: 700;
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-orange-glow);
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid rgba(255, 102, 0, 0.2);
-      padding-bottom: 10px;
+      justify-content: center;
+      gap: 8px;
     }
 
-    /* Live Preview Panel */
-    .preview-box {
-      border: 2px dashed var(--brand-orange);
+    .btn-clean:hover {
+      box-shadow: 0 0 30px rgba(255, 102, 0, 0.6);
+      transform: translateY(-1px);
+    }
+
+    /* QR Code & Status UI */
+    .qr-container-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: var(--radius-md);
-      padding: 24px;
-      background: rgba(255, 255, 255, 0.02);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      position: relative;
     }
 
-    /* Table styling for Invoice Manager */
+    .wweb-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .wweb-status-badge.connected {
+      background: rgba(37, 211, 102, 0.15);
+      border: 1px solid var(--whatsapp-green);
+      color: var(--whatsapp-green);
+      animation: pulse-status 2s infinite;
+    }
+
+    .wweb-status-badge.disconnected {
+      background: rgba(255, 102, 0, 0.15);
+      border: 1px solid var(--brand-orange);
+      color: var(--brand-orange-light);
+    }
+
+    .wweb-status-badge.loading {
+      background: rgba(255, 215, 0, 0.15);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+    }
+
+    @keyframes pulse-status {
+      0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+
+    .qr-wrapper {
+      background: #FFFFFF;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    /* Flow Summary Timeline */
+    .flow-steps-timeline {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .flow-step-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .flow-step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 102, 0, 0.15);
+      border: 1px solid var(--brand-orange);
+      color: var(--brand-orange-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .flow-step-content {
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .flow-step-content strong {
+      color: #FFFFFF;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* Invoice List Table */
+    .invoice-section {
+      margin-top: 40px;
+    }
+
+    .invoice-table-wrapper {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
     .invoice-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
       font-size: 0.85rem;
     }
 
     .invoice-table th, .invoice-table td {
-      border: 1px solid rgba(255, 102, 0, 0.2);
-      padding: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 102, 0, 0.1);
       text-align: left;
     }
 
     .invoice-table th {
-      background: rgba(255, 102, 0, 0.1);
+      background: rgba(255, 102, 0, 0.08);
       color: var(--brand-orange-light);
-    }
-
-    .badge-status {
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.75rem;
       font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
     }
 
-    .badge-status.aberto {
-      background: rgba(255, 180, 0, 0.15);
-      color: #FFC107;
-    }
-
-    .badge-status.pago {
-      background: rgba(37, 211, 102, 0.15);
-      color: #25D366;
+    .invoice-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
     }
   </style>
 </head>
 <body>
 
-  <div class="container admin-container">
+  <div class="admin-container">
     
-    <!-- Admin Header -->
-    <div class="admin-header">
-      <div>
-        <a href="index.html" style="font-size: 0.9rem; color: var(--brand-orange-light); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-          <i class="ri-arrow-left-line"></i> Voltar para o Site Oficial
-        </a>
-        <h1 class="gradient-text" style="font-size: 2.25rem; font-weight: 900; background: var(--grad-orange); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PORTAL ADMIN | ULTRA BOT</h1>
+    <!-- Admin Navigation -->
+    <div class="admin-nav">
+      <div class="admin-nav-left">
+        <a href="index.html"><i class="ri-arrow-left-line"></i> Voltar para o Site Oficial</a>
+        <h1>Painel Ultra Bot</h1>
       </div>
-      <a href="index.html" class="btn btn-outline">
-        <i class="ri-eye-line"></i> Ver Site ao Vivo
+      <a href="index.html" class="btn btn-outline" style="padding: 10px 20px; font-size: 0.9rem;">
+        <i class="ri-eye-line"></i> Visualizar Site
       </a>
     </div>
 
+    <!-- Main Admin Layout Grid -->
     <div class="admin-grid">
       
-      <!-- Left Column: Settings & Invoices Form -->
-      <div class="glass-card" style="padding: 30px; border-color: rgba(255,102,0,0.3);">
-        <div class="card-title-icon">
-          <i class="ri-settings-4-fill" style="font-size: 1.5rem; color: var(--brand-orange);"></i>
-          <h2 style="font-size: 1.25rem; font-weight: 800; color: #FFF;">Configurações do Chatbot</h2>
+      <!-- LEFT COLUMN: BOT SETTINGS & GENERAL CONFIGS -->
+      <div style="display: flex; flex-direction: column; gap: 32px;">
+        
+        <!-- General Config Card -->
+        <div class="glass-card-admin">
+          <div class="card-header-clean">
+            <i class="ri-settings-4-fill"></i>
+            <h2>Configurações do Robô</h2>
+          </div>
+
+          <form id="adminSettingsForm">
+            <!-- WhatsApp Number -->
+            <div class="form-group">
+              <label for="waNumber">WhatsApp de Vendas/Atendimento</label>
+              <input type="text" id="waNumber" class="form-control" placeholder="Ex: 55991183681">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Informe com código de país (55) + DDD (ex: 55991183681).</span>
+            </div>
+
+            <!-- API Address Link -->
+            <div class="form-group">
+              <label for="apiUrl">Endereço do Servidor do Bot (API)</label>
+              <input type="text" id="apiUrl" class="form-control" placeholder="Ex: https://ultrafibra.onrender.com">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Caminho do backend hospedado no Render ou localmente.</span>
+            </div>
+
+            <!-- Welcome Message Text -->
+            <div class="form-group">
+              <label for="welcomeMessage">Mensagem de Entrada / Boas-Vindas</label>
+              <textarea id="welcomeMessage" class="form-control" placeholder="Mensagem do menu inicial..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-clean">
+              <i class="ri-save-fill"></i> Salvar Configurações
+            </button>
+          </form>
         </div>
 
-        <form id="adminSettingsForm">
-          <!-- WhatsApp Number -->
-          <div class="form-group">
-            <label for="waNumber">WhatsApp de Vendas/Atendimento</label>
-            <input type="text" id="waNumber" class="form-control" placeholder="Ex: 55991183681">
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Inclua o código de país (55) e o DDD.</span>
+        <!-- Add Invoice Card -->
+        <div class="glass-card-admin">
+          <div class="card-header-clean">
+            <i class="ri-file-add-fill"></i>
+            <h2>Cadastrar Nova Fatura</h2>
           </div>
 
-          <!-- Backend API URL -->
-          <div class="form-group">
-            <label for="apiUrl">Endereço da API do Bot (Backend)</label>
-            <input type="text" id="apiUrl" class="form-control" placeholder="Ex: http://localhost:3001">
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Use http://localhost:3001 para rodar localmente ou a URL pública da sua hospedagem (Render/Railway).</span>
-          </div>
+          <form id="addInvoiceForm">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label for="invCpf">CPF do Cliente</label>
+                <input type="text" id="invCpf" class="form-control" placeholder="Ex: 12345678900" required>
+              </div>
+              <div class="form-group">
+                <label for="invTitular">Nome Completo</label>
+                <input type="text" id="invTitular" class="form-control" placeholder="João Silva" required>
+              </div>
+            </div>
 
-          <!-- Welcome / Greeting Message -->
-          <div class="form-group">
-            <label for="welcomeMessage">Mensagem de Saudação do Bot</label>
-            <textarea id="welcomeMessage" class="form-control" placeholder="Mensagem inicial de boas-vindas..."></textarea>
-          </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label for="invValor">Valor</label>
+                <input type="text" id="invValor" class="form-control" placeholder="Ex: R$ 85,00" required>
+              </div>
+              <div class="form-group">
+                <label for="invVencimento">Vencimento</label>
+                <input type="text" id="invVencimento" class="form-control" placeholder="Ex: 10/08/2026" required>
+              </div>
+            </div>
 
-          <!-- Quick Action Controls -->
-          <div style="margin-top: 30px; display: flex; gap: 12px;">
-            <button type="submit" class="btn btn-primary" style="flex: 1;">
-              <i class="ri-save-line"></i> Salvar Alterações
+            <div class="form-group">
+              <label for="invPlano">Plano Vinculado</label>
+              <input type="text" id="invPlano" class="form-control" placeholder="Ex: Ultra Fibra 450 Megas + TV" required>
+            </div>
+
+            <button type="submit" class="btn-clean" style="background: transparent; border: 1px solid var(--brand-orange); color: var(--brand-orange-light); box-shadow: none;">
+              <i class="ri-add-line"></i> Inserir Fatura
             </button>
-            <button type="button" class="btn btn-outline" id="resetBtn">
-              Restaurar Padrão
-            </button>
-          </div>
-        </form>
-
-        <!-- Simulated Invoice Creator Section -->
-        <div class="card-title-icon" style="margin-top: 50px;">
-          <i class="ri-file-list-3-fill" style="font-size: 1.5rem; color: var(--brand-orange);"></i>
-          <h2 style="font-size: 1.25rem; font-weight: 800; color: #FFF;">Gerenciador de Faturas</h2>
+          </form>
         </div>
 
-        <form id="addInvoiceForm">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="form-group">
-              <label for="invCpf">CPF do Cliente</label>
-              <input type="text" id="invCpf" class="form-control" placeholder="12345678900" required>
-            </div>
-            <div class="form-group">
-              <label for="invTitular">Nome Completo</label>
-              <input type="text" id="invTitular" class="form-control" placeholder="João da Silva" required>
-            </div>
+      </div>
+
+      <!-- RIGHT COLUMN: WHATSAPP WEB QR CODE CONNECT -->
+      <div class="glass-card-admin" style="border-color: rgba(37, 211, 102, 0.3);">
+        <div class="card-header-clean" style="border-bottom-color: rgba(37, 211, 102, 0.1);">
+          <i class="ri-whatsapp-fill" style="color: var(--whatsapp-green);"></i>
+          <h2>Conexão WhatsApp Web</h2>
+        </div>
+
+        <!-- Connection Screen Box -->
+        <div class="qr-container-box">
+          <div id="wwebStatusBadge" class="wweb-status-badge disconnected">
+            Desconectado
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="form-group">
-              <label for="invValor">Valor da Fatura</label>
-              <input type="text" id="invValor" class="form-control" placeholder="R$ 99,90" required>
-            </div>
-            <div class="form-group">
-              <label for="invVencimento">Data de Vencimento</label>
-              <input type="text" id="invVencimento" class="form-control" placeholder="10/08/2026" required>
-            </div>
+          <!-- QR Code Display Frame -->
+          <div id="wwebQrContainer" class="qr-wrapper" style="display: none;">
+            <img id="wwebQrImg" src="" alt="QR Code para Autenticação">
           </div>
 
-          <div class="form-group">
-            <label for="invPlano">Plano Vinculado</label>
-            <input type="text" id="invPlano" class="form-control" placeholder="Ultra Fibra 650 Megas Destaque + TV" required>
+          <p id="wwebInstruction" style="font-size: 0.85rem; text-align: center; color: var(--text-muted); max-width: 320px; line-height: 1.5;">
+            Verificando conexão com o servidor.
+          </p>
+        </div>
+
+        <!-- Dialogue Map Outline -->
+        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px;">
+          <h3 style="font-size: 0.95rem; font-weight: 800; color: #FFF; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">
+            Fluxo Configurado no Chatbot:
+          </h3>
+
+          <div class="flow-steps-timeline">
+            <!-- Step 1 -->
+            <div class="flow-step-item">
+              <div class="flow-step-number">1</div>
+              <div class="flow-step-content">
+                <strong>Assinar Plano</strong>
+                Exibe planos e entra em espera (handover) para atendimento manual.
+              </div>
+            </div>
+            <!-- Step 2 -->
+            <div class="flow-step-item">
+              <div class="flow-step-number">2</div>
+              <div class="flow-step-content">
+                <strong>Segunda Via de Fatura</strong>
+                Solicita CPF, faz consulta e gera chave PIX Copia e Cola.
+              </div>
+            </div>
+            <!-- Step 3 -->
+            <div class="flow-step-item">
+              <div class="flow-step-number">3</div>
+              <div class="flow-step-content">
+                <strong>Suporte Técnico</strong>
+                Pergunta o problema do cliente e transfere para a equipe humana.
+              </div>
+            </div>
           </div>
+        </div>
 
-          <button type="submit" class="btn btn-outline" style="width: 100%;">
-            <i class="ri-add-line"></i> Adicionar/Atualizar Fatura
-          </button>
-        </form>
+      </div>
 
-        <!-- Listed Invoices -->
+    </div>
+
+    <!-- BOTTOM SECTION: INVOICES MANAGER DATABASE -->
+    <div class="glass-card-admin invoice-section">
+      <div class="card-header-clean">
+        <i class="ri-database-2-fill"></i>
+        <h2>Faturas Cadastradas no Sistema</h2>
+      </div>
+
+      <div class="invoice-table-wrapper">
         <table class="invoice-table">
           <thead>
             <tr>
-              <th>CPF</th>
-              <th>Nome</th>
-              <th>Plano</th>
-              <th>Vencimento</th>
-              <th>Valor</th>
-              <th>Ações</th>
+              <th>CPF / CNPJ</th>
+              <th>Nome do Cliente</th>
+              <th>Plano de Internet</th>
+              <th>Data de Vencimento</th>
+              <th>Valor Mensal</th>
+              <th style="width: 100px; text-align: center;">Ações</th>
             </tr>
           </thead>
           <tbody id="invoiceTableBody">
-            <!-- Populated via Javascript -->
+            <!-- Populated via script -->
           </tbody>
         </table>
-
       </div>
-
-      <!-- Right Column: WhatsApp Web Auth & Chatbot Preview -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
-        
-        <!-- WhatsApp Web Auth Card -->
-        <div class="glass-card" style="padding: 30px; border-color: rgba(37, 211, 102, 0.4); box-shadow: 0 0 25px rgba(37, 211, 102, 0.15);">
-          <div class="card-title-icon" style="border-bottom-color: rgba(37, 211, 102, 0.2);">
-            <i class="ri-whatsapp-fill" style="font-size: 1.5rem; color: var(--whatsapp-green);"></i>
-            <h2 style="font-size: 1.25rem; font-weight: 800; color: #FFF;">Conexão WhatsApp Web Real</h2>
-          </div>
-
-          <div style="text-align: center; padding: 10px 0;">
-            <div id="wwebStatusBadge" style="display: inline-block; padding: 6px 16px; border-radius: var(--radius-pill); font-size: 0.85rem; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; background: rgba(255, 102, 0, 0.2); color: var(--brand-orange-light);">
-              CARREGANDO STATUS...
-            </div>
-
-            <!-- QR Code Container -->
-            <div id="wwebQrContainer" style="display: none; justify-content: center; margin-bottom: 20px;">
-              <div style="background: white; padding: 16px; border-radius: 12px; width: fit-content; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-                <img id="wwebQrImg" src="" alt="QR Code" style="width: 200px; height: 200px; display: block;">
-              </div>
-            </div>
-
-            <p id="wwebInstruction" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; max-width: 320px; margin: 0 auto;">
-              Iniciando conexão com o servidor do chatbot.
-            </p>
-          </div>
-        </div>
-
-        <!-- Preview Box -->
-        <div class="preview-box">
-          <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--gold); display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
-            <i class="ri-eye-2-line"></i> Visualização do Fluxo de Boas-Vindas
-          </h3>
-
-          <div style="border: 2px solid var(--brand-orange); border-radius: 12px; height: 350px; display: flex; flex-direction: column; overflow: hidden; background: #0E0804;">
-            <div style="padding: 12px 16px; background: rgba(28, 14, 7, 0.95); border-bottom: 1px solid var(--brand-orange); display: flex; align-items: center; gap: 10px;">
-              <div style="width: 8px; height: 8px; background: #25D366; border-radius: 50%;"></div>
-              <strong style="font-size: 0.9rem;">Ultra Bot (Preview)</strong>
-            </div>
-            
-            <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; font-size: 0.85rem;">
-              <div style="align-self: flex-start; background: rgba(36, 18, 8, 0.9); border: 1px solid rgba(255,102,0,0.3); padding: 12px 14px; border-radius: 12px; border-top-left-radius: 2px; max-width: 85%;">
-                <p id="chatWelcomePreview"></p>
-                <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
-                  <button type="button" style="padding: 8px; background: rgba(255, 102, 0, 0.08); border: 1px solid var(--brand-orange); color: var(--brand-orange-light); border-radius: 20px; font-weight: 700; text-align: left; font-size: 0.75rem;">
-                    1 - Assinar um Plano
-                  </button>
-                  <button type="button" style="padding: 8px; background: rgba(255, 102, 0, 0.08); border: 1px solid var(--brand-orange); color: var(--brand-orange-light); border-radius: 20px; font-weight: 700; text-align: left; font-size: 0.75rem;">
-                    2 - Segunda Via de Fatura
-                  </button>
-                  <button type="button" style="padding: 8px; background: rgba(255, 102, 0, 0.08); border: 1px solid var(--brand-orange); color: var(--brand-orange-light); border-radius: 20px; font-weight: 700; text-align: left; font-size: 0.75rem;">
-                    3 - Suporte Técnico
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
     </div>
 
   </div>
 
-  <!-- Custom Admin Portal Script -->
+  <!-- Client side Controller Script -->
   <script>
     const STORAGE_KEY = 'ultra_bot_config';
     
@@ -338,23 +521,22 @@
 
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_CONFIG;
 
-    // Elements
+    // Form inputs
     const formSettings = document.getElementById('adminSettingsForm');
     const waInput = document.getElementById('waNumber');
     const apiInput = document.getElementById('apiUrl');
     const welcomeInput = document.getElementById('welcomeMessage');
-    const welcomePreview = document.getElementById('chatWelcomePreview');
-    const resetBtn = document.getElementById('resetBtn');
-    
+    const tableBody = document.getElementById('invoiceTableBody');
+
+    // Invoice form fields
     const addInvoiceForm = document.getElementById('addInvoiceForm');
     const invCpf = document.getElementById('invCpf');
     const invTitular = document.getElementById('invTitular');
     const invValor = document.getElementById('invValor');
     const invVencimento = document.getElementById('invVencimento');
     const invPlano = document.getElementById('invPlano');
-    const tableBody = document.getElementById('invoiceTableBody');
 
-    // WhatsApp Web DOM Elements
+    // Wweb UI components
     const wwebStatusBadge = document.getElementById('wwebStatusBadge');
     const wwebQrContainer = document.getElementById('wwebQrContainer');
     const wwebQrImg = document.getElementById('wwebQrImg');
@@ -368,11 +550,10 @@
 
     function updateUI() {
       waInput.value = config.whatsappNumber;
-      apiInput.value = config.apiUrl || 'http://localhost:3001';
+      apiInput.value = config.apiUrl || 'https://ultrafibra.onrender.com';
       welcomeInput.value = config.welcomeMessage;
-      welcomePreview.innerHTML = config.welcomeMessage;
 
-      // Table mapping
+      // Map rows
       tableBody.innerHTML = '';
       Object.keys(config.invoices).forEach(cpf => {
         const inv = config.invoices[cpf];
@@ -383,9 +564,9 @@
           <td>${inv.plano}</td>
           <td>${inv.vencimento}</td>
           <td><strong style="color: var(--brand-orange-light);">${inv.valor}</strong></td>
-          <td>
-            <button onclick="deleteInvoice('${cpf}')" style="color: #FF0055; font-weight: 700; cursor: pointer;">
-              <i class="ri-delete-bin-line"></i> Excluir
+          <td style="text-align: center;">
+            <button onclick="deleteInvoice('${cpf}')" style="color: #FF0055; font-weight: 700; cursor: pointer; border: none; background: none;">
+              <i class="ri-delete-bin-6-line"></i> Excluir
             </button>
           </td>
         `;
@@ -393,19 +574,19 @@
       });
     }
 
-    // Settings save handler
+    // Save configurations
     formSettings.addEventListener('submit', (e) => {
       e.preventDefault();
       config.whatsappNumber = waInput.value.trim();
       config.apiUrl = apiInput.value.trim();
       config.welcomeMessage = welcomeInput.value.trim();
       saveConfig();
-      alert("Configurações salvas com sucesso!");
+      alert("Configurações atualizadas!");
     });
 
-    // Reset default handler
-    resetBtn.addEventListener('click', () => {
-      if (confirm("Deseja realmente restaurar as configurações originais?")) {
+    // Reset default
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (confirm("Deseja redefinir as configurações originais?")) {
         config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
         saveConfig();
       }
@@ -416,7 +597,7 @@
       e.preventDefault();
       const cleanCpf = invCpf.value.replace(/\D/g, '');
       if (cleanCpf.length < 11) {
-        alert("Digite um CPF válido com 11 dígitos.");
+        alert("Preencha um CPF com 11 dígitos.");
         return;
       }
 
@@ -430,19 +611,19 @@
 
       saveConfig();
       addInvoiceForm.reset();
-      alert("Fatura cadastrada/atualizada com sucesso!");
+      alert("Fatura inserida!");
     });
 
     window.deleteInvoice = function(cpf) {
-      if (confirm(`Tem certeza de que deseja excluir a fatura vinculada ao CPF ${cpf}?`)) {
+      if (confirm(`Remover fatura do CPF ${cpf}?`)) {
         delete config.invoices[cpf];
         saveConfig();
       }
     };
 
-    // --- INTEGRATION: SYNC WITH REAL WHATSAPP WEB BACKEND ---
+    // REST API communication with Render
     function syncWithBackend() {
-      const url = config.apiUrl || 'http://localhost:3001';
+      const url = config.apiUrl || 'https://ultrafibra.onrender.com';
       fetch(`${url}/api/config`, {
         method: 'POST',
         headers: {
@@ -451,54 +632,52 @@
         body: JSON.stringify(config)
       })
       .then(res => res.json())
-      .then(data => console.log('Sincronização do backend efetuada:', data))
-      .catch(err => console.log('Nota: Servidor backend do WhatsApp não alcançado. Verifique se o endereço da API está correto.'));
+      .then(data => console.log('Sucesso na sincronização:', data))
+      .catch(err => console.log('Servidor de WhatsApp não sincronizado.'));
     }
 
-    // Poll WhatsApp connection status from backend
-    function pollWhatsAppStatus() {
-      const url = config.apiUrl || 'http://localhost:3001';
+    // Fetch Connection state with polling loop
+    function checkWhatsAppStatus() {
+      const url = config.apiUrl || 'https://ultrafibra.onrender.com';
       fetch(`${url}/api/status`)
       .then(res => res.json())
       .then(data => {
         if (data.status === 'CONNECTED') {
-          wwebStatusBadge.style.background = 'rgba(37, 211, 102, 0.2)';
-          wwebStatusBadge.style.color = '#25D366';
-          wwebStatusBadge.innerText = 'CONECTADO';
+          wwebStatusBadge.className = 'wweb-status-badge connected';
+          wwebStatusBadge.innerText = 'Conectado';
           wwebQrContainer.style.display = 'none';
-          wwebInstruction.innerHTML = '🤖 <strong>Ultra Bot pronto!</strong> Ele responderá os clientes automaticamente no seu WhatsApp.';
+          wwebInstruction.innerHTML = '🟢 <strong>Robô Operando!</strong> Ele responderá os clientes automaticamente no seu WhatsApp.';
         } else if (data.status === 'AWAITING_QR') {
-          wwebStatusBadge.style.background = 'rgba(0, 168, 204, 0.2)';
-          wwebStatusBadge.style.color = '#00A8CC';
-          wwebStatusBadge.innerText = 'AGUARDANDO LEITURA';
+          wwebStatusBadge.className = 'wweb-status-badge loading';
+          wwebStatusBadge.style.borderColor = 'var(--brand-teal)';
+          wwebStatusBadge.style.color = 'var(--brand-teal)';
+          wwebStatusBadge.innerText = 'Escaneie o QR Code';
           
           if (data.qr) {
             wwebQrImg.src = data.qr;
             wwebQrContainer.style.display = 'flex';
           }
-          wwebInstruction.innerHTML = 'Abra o WhatsApp no celular ➡️ <strong>Dispositivos Conectados</strong> ➡️ Escaneie o QR Code acima.';
+          wwebInstruction.innerHTML = 'Abra o WhatsApp ➡️ <strong>Dispositivos Conectados</strong> ➡️ Escaneie o código acima.';
         } else {
-          wwebStatusBadge.style.background = 'rgba(255, 102, 0, 0.2)';
-          wwebStatusBadge.style.color = 'var(--brand-orange-light)';
-          wwebStatusBadge.innerText = 'INICIANDO CLIENTE...';
+          wwebStatusBadge.className = 'wweb-status-badge loading';
+          wwebStatusBadge.innerText = 'Inicializando...';
           wwebQrContainer.style.display = 'none';
-          wwebInstruction.innerText = 'Iniciando instância headless do WhatsApp Web. Aguarde...';
+          wwebInstruction.innerText = 'Conectando à API do WhatsApp Web. Por favor, aguarde...';
         }
       })
       .catch(err => {
-        wwebStatusBadge.style.background = 'rgba(255, 0, 85, 0.15)';
-        wwebStatusBadge.style.color = '#FF0055';
-        wwebStatusBadge.innerText = 'DESCONECTADO';
+        wwebStatusBadge.className = 'wweb-status-badge disconnected';
+        wwebStatusBadge.innerText = 'Desconectado';
         wwebQrContainer.style.display = 'none';
-        wwebInstruction.innerHTML = '⚠️ O backend Node.js não está respondendo. Verifique se o endereço da API está correto ou se o backend está sendo executado.';
+        wwebInstruction.innerHTML = '⚠️ Servidor fora do ar. Verifique se o bot no <strong>Render</strong> está rodando.';
       });
     }
 
-    // Initial load & Polling Loop
+    // Initializations
     updateUI();
     syncWithBackend();
-    pollWhatsAppStatus();
-    setInterval(pollWhatsAppStatus, 4000);
+    checkWhatsAppStatus();
+    setInterval(checkWhatsAppStatus, 4000);
   </script>
 </body>
 </html>
