@@ -228,6 +228,12 @@
       transition: all 0.3s ease;
     }
 
+    .qr-wrapper img {
+      width: 200px;
+      height: 200px;
+      display: block;
+    }
+
     /* Flow Summary Timeline */
     .flow-steps-timeline {
       margin-top: 24px;
@@ -355,9 +361,14 @@
               <textarea id="welcomeMessage" class="form-control" placeholder="Mensagem do menu inicial..."></textarea>
             </div>
 
-            <button type="submit" class="btn-clean">
-              <i class="ri-save-fill"></i> Salvar Configurações
-            </button>
+            <div style="display: flex; gap: 12px;">
+              <button type="submit" class="btn-clean" style="flex: 1;">
+                <i class="ri-save-fill"></i> Salvar Configurações
+              </button>
+              <button type="button" class="btn btn-outline" id="resetBtn" style="border-radius: var(--radius-pill); border-color: rgba(255,255,255,0.15);">
+                Limpar Cache
+              </button>
+            </div>
           </form>
         </div>
 
@@ -521,6 +532,12 @@
 
     let config = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_CONFIG;
 
+    // Force migration if they had a different API URL or no API URL in their cached localStorage config
+    if (!config.apiUrl || config.apiUrl.includes('localhost')) {
+      config.apiUrl = 'https://ultrafibra.onrender.com';
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    }
+
     // Form inputs
     const formSettings = document.getElementById('adminSettingsForm');
     const waInput = document.getElementById('waNumber');
@@ -581,16 +598,19 @@
       config.apiUrl = apiInput.value.trim();
       config.welcomeMessage = welcomeInput.value.trim();
       saveConfig();
-      alert("Configurações atualizadas!");
+      alert("Configurações atualizadas com sucesso!");
     });
 
-    // Reset default
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      if (confirm("Deseja redefinir as configurações originais?")) {
-        config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-        saveConfig();
-      }
-    });
+    // Reset default / Clear cache
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (confirm("Redefinir configurações e limpar cache local do navegador?")) {
+          config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+          saveConfig();
+        }
+      });
+    }
 
     // Add Simulated Invoice
     addInvoiceForm.addEventListener('submit', (e) => {
@@ -611,7 +631,7 @@
 
       saveConfig();
       addInvoiceForm.reset();
-      alert("Fatura inserida!");
+      alert("Fatura inserida com sucesso!");
     });
 
     window.deleteInvoice = function(cpf) {
@@ -669,7 +689,7 @@
         wwebStatusBadge.className = 'wweb-status-badge disconnected';
         wwebStatusBadge.innerText = 'Desconectado';
         wwebQrContainer.style.display = 'none';
-        wwebInstruction.innerHTML = '⚠️ Servidor fora do ar. Verifique se o bot no <strong>Render</strong> está rodando.';
+        wwebInstruction.innerHTML = '⚠️ Servidor offline. Verifique se o bot no <strong>Render</strong> está rodando.';
       });
     }
 
