@@ -31,7 +31,7 @@ let dbConfig = {
     providerToken: Buffer.from('JGFhY3RfcHJvZF8wMDBNemt3T0RBMk1XWTJPR00zTVdSbE1EVTJOV00zTXpKbE56Wm1OR1poWkdZNk9tTTFNR0ZpTkRnNExUZ3daRGd0TkdNMlpDMWlaVGhtTFRGaVl6ZzVNelptTkRObE5UbzZKR0ZoWTJoZk0yWTRNekUxWkRjdE5UTXdOaTAwWlRZMExXRmxPREl0T0RReU56azBNMlkwT0RWawo=', 'base64').toString('utf8').trim(),
     welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.',
     planMessage: 'Planos de Internet Ultra Fibra disponíveis:\n\n⚡ 350 Megas - R$ 70,00/mês\n⚡ 450 Megas - R$ 85,00/mês (Canais, Filmes e Séries)\n⚡ 650 Megas - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)\n\n🤖 Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Aguarde um instante...',
-    supportMessage: 'Por favor, descreva qual o problema ou lentidão que você está enfrentando na sua conexão:',
+    supportMessage: 'Por favor, selecione qual a sua solicitação ou problema de suporte:\n\n1️⃣ - Troca de Senha\n2️⃣ - Lentidão na Conexão\n3️⃣ - Mudança de Endereço\n4️⃣ - Outros\n\nPor favor, responda digitando apenas o número correspondente.',
     invoices: {
         '12345678900': {
             titular: 'João da Silva',
@@ -157,8 +157,8 @@ async function connectToWhatsApp() {
                         await sock.sendMessage(from, { text: `Por favor, digite o CPF cadastrado do titular da conta (apenas números):` });
                         session.step = 'AWAITING_CPF';
                     } else if (text === '3') {
-                        await sock.sendMessage(from, { text: dbConfig.supportMessage || 'Como posso te ajudar no suporte?' });
-                        session.step = 'AWAITING_PROBLEM';
+                        await sock.sendMessage(from, { text: dbConfig.supportMessage || 'Por favor, selecione a opção de suporte:' });
+                        session.step = 'AWAITING_SUPPORT_OPTION';
                     } else {
                         await sock.sendMessage(from, { text: dbConfig.welcomeMessage });
                     }
@@ -332,6 +332,24 @@ async function connectToWhatsApp() {
                         session.step = 'INITIAL';
                     }
                 } 
+                
+                else if (session.step === 'AWAITING_SUPPORT_OPTION') {
+                    if (text === '2') {
+                        // Option 2: Lentidão na Conexão → Send Speedtest link
+                        const speedMsg = `📡 *Teste de Velocidade da sua Conexão*\n\nPara verificar a velocidade da sua internet, acesse o link abaixo:\n\n🔗 https://www.speedtest.net/pt\n\nApós o teste, caso o resultado esteja abaixo do contratado, entre em contato novamente que iremos te ajudar! 😊\n\nDigite 0 para voltar ao menu inicial.`;
+                        await sock.sendMessage(from, { text: speedMsg });
+                        session.step = 'INITIAL';
+                    } else if (text === '1' || text === '3' || text === '4') {
+                        // Options 1, 3, 4 → Human handover
+                        const labels = { '1': 'Troca de Senha', '3': 'Mudança de Endereço', '4': 'Outros' };
+                        const topic = labels[text] || 'Suporte';
+                        const reply = `🤖 Entendido! Registramos sua solicitação: *${topic}*.\n\nUm atendente especializado irá prosseguir com o seu atendimento a partir de agora. Por favor, aguarde um instante... ⏳`;
+                        await sock.sendMessage(from, { text: reply });
+                        session.step = 'HUMAN_HANDOVER';
+                    } else {
+                        await sock.sendMessage(from, { text: `⚠️ Opção inválida. Por favor, responda com 1, 2, 3 ou 4.\n\n${dbConfig.supportMessage}` });
+                    }
+                }
                 
                 else if (session.step === 'AWAITING_PROBLEM') {
                     const reply = `🤖 Entendido. Registrei sua ocorrência: "${text}".\n\nUm técnico de suporte especializado irá prosseguir com o seu atendimento manualmente a partir de agora. Por favor, aguarde...`;
