@@ -571,7 +571,7 @@
       whatsappNumber: '55991183681',
       apiUrl: 'https://ultrafibra.onrender.com',
       botActive: true,
-      welcomeMessage: 'Olá! 👋 Sou o <strong>Ultra Bot</strong>. Por favor, escolha uma das opções abaixo para iniciarmos seu atendimento:',
+      welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.',
       invoices: {
         '12345678900': {
           titular: 'João da Silva',
@@ -601,6 +601,12 @@
     // Set default botActive to true if not specified
     if (config.botActive === undefined) {
       config.botActive = true;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    }
+
+    // Force welcome message migration to include the 1, 2, 3 options list
+    if (!config.welcomeMessage || (!config.welcomeMessage.includes('1') && !config.welcomeMessage.includes('1️⃣'))) {
+      config.welcomeMessage = 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.';
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
 
