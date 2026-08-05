@@ -42,14 +42,19 @@ let dbConfig = {
 };
 
 // Initialize WhatsApp Client with Local Session Authentication
+const puppeteerOptions = {
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+};
+if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    puppeteerOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+}
+
 const client = new Client({
     authStrategy: new LocalAuth({
         dataPath: path.join(__dirname, '.wwebjs_auth')
     }),
-    puppeteer: {
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-    }
+    puppeteer: puppeteerOptions
 });
 
 connectionStatus = 'INITIALIZING';
