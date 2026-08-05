@@ -219,6 +219,55 @@
       100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
     }
 
+    /* Modern Toggle Switch styling */
+    .switch-toggle {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+
+    .switch-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-round {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: .4s;
+      border-radius: 34px;
+      border: 1px solid rgba(255, 102, 0, 0.3);
+    }
+
+    .slider-round:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #FFFFFF;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider-round {
+      background-color: rgba(37, 211, 102, 0.2);
+      border-color: var(--whatsapp-green);
+    }
+
+    input:checked + .slider-round:before {
+      background-color: var(--whatsapp-green);
+      transform: translateX(24px);
+    }
+
     .qr-wrapper {
       background: #FFFFFF;
       padding: 16px;
@@ -428,6 +477,16 @@
             Desconectado
           </div>
 
+          <!-- Active/Inactive Toggle Switch -->
+          <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 12px; background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03);">
+            <span style="font-size: 0.8rem; color: #FFF; font-weight: 800; letter-spacing: 0.5px;">STATUS DO ROBÔ:</span>
+            <label class="switch-toggle">
+              <input type="checkbox" id="botActiveToggle" checked>
+              <span class="slider-round"></span>
+            </label>
+            <span id="botActiveStatusLabel" style="font-size: 0.8rem; color: var(--whatsapp-green); font-weight: 800;">ATIVADO</span>
+          </div>
+
           <!-- QR Code Display Frame -->
           <div id="wwebQrContainer" class="qr-wrapper" style="display: none;">
             <img id="wwebQrImg" src="" alt="QR Code para Autenticação">
@@ -511,6 +570,7 @@
     const DEFAULT_CONFIG = {
       whatsappNumber: '55991183681',
       apiUrl: 'https://ultrafibra.onrender.com',
+      botActive: true,
       welcomeMessage: 'Olá! 👋 Sou o <strong>Ultra Bot</strong>. Por favor, escolha uma das opções abaixo para iniciarmos seu atendimento:',
       invoices: {
         '12345678900': {
@@ -537,6 +597,12 @@
       config.apiUrl = 'https://ultrafibra.onrender.com';
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
+    
+    // Set default botActive to true if not specified
+    if (config.botActive === undefined) {
+      config.botActive = true;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    }
 
     // Form inputs
     const formSettings = document.getElementById('adminSettingsForm');
@@ -558,6 +624,10 @@
     const wwebQrContainer = document.getElementById('wwebQrContainer');
     const wwebQrImg = document.getElementById('wwebQrImg');
     const wwebInstruction = document.getElementById('wwebInstruction');
+    
+    // Bot Active Toggle Switch components
+    const botActiveToggle = document.getElementById('botActiveToggle');
+    const botActiveStatusLabel = document.getElementById('botActiveStatusLabel');
 
     function saveConfig() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
@@ -569,6 +639,16 @@
       waInput.value = config.whatsappNumber;
       apiInput.value = config.apiUrl || 'https://ultrafibra.onrender.com';
       welcomeInput.value = config.welcomeMessage;
+      
+      // Update toggle state
+      botActiveToggle.checked = config.botActive !== false;
+      if (botActiveToggle.checked) {
+        botActiveStatusLabel.style.color = 'var(--whatsapp-green)';
+        botActiveStatusLabel.innerText = 'ATIVADO';
+      } else {
+        botActiveStatusLabel.style.color = '#FF0055';
+        botActiveStatusLabel.innerText = 'DESATIVADO';
+      }
 
       // Map rows
       tableBody.innerHTML = '';
@@ -599,6 +679,12 @@
       config.welcomeMessage = welcomeInput.value.trim();
       saveConfig();
       alert("Configurações atualizadas com sucesso!");
+    });
+
+    // Toggle active state
+    botActiveToggle.addEventListener('change', () => {
+      config.botActive = botActiveToggle.checked;
+      saveConfig();
     });
 
     // Reset default / Clear cache
