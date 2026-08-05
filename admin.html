@@ -674,8 +674,8 @@
       whatsappNumber: '55991183681',
       apiUrl: 'https://ultrafibra.onrender.com',
       botActive: true,
-      providerActive: false,
-      providerUrl: '',
+      providerActive: true,
+      providerUrl: 'https://api.asaas.com/v3',
       providerToken: '',
       welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.',
       planMessage: 'Planos de Internet Ultra Fibra disponíveis:\n\n⚡ 350 Megas - R$ 70,00/mês\n⚡ 450 Megas - R$ 85,00/mês (Canais, Filmes e Séries)\n⚡ 650 Megas - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)\n\n🤖 Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Aguarde um instante...',
@@ -728,10 +728,10 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
 
-    // Initialize provider defaults if undefined
-    if (config.providerActive === undefined) {
-      config.providerActive = false;
-      config.providerUrl = '';
+    // Initialize provider defaults and force-enable Asaas integration (without hardcoding secret token)
+    if (!config.providerUrl || config.providerUrl === '' || !config.providerActive) {
+      config.providerActive = true;
+      config.providerUrl = 'https://api.asaas.com/v3';
       config.providerToken = '';
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     }
