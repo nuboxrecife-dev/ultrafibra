@@ -405,40 +405,6 @@
 </head>
 <body>
 
-  <!-- Beautiful Admin Login Overlay -->
-  <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8, 5, 4, 0.96); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: all 0.5s ease;">
-    <div class="glass-card-admin" style="width: 100%; max-width: 400px; padding: 40px; border-color: var(--brand-orange); box-shadow: 0 0 50px rgba(255, 102, 0, 0.25); text-align: center;">
-      
-      <div style="margin-bottom: 30px;">
-        <div style="width: 75px; height: 75px; border-radius: 50%; background: rgba(255, 102, 0, 0.1); border: 2px solid var(--brand-orange); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
-          <i class="ri-lock-password-fill" style="font-size: 2.2rem; color: var(--brand-orange-light);"></i>
-        </div>
-        <h2 style="font-size: 1.5rem; font-weight: 900; color: #FFFFFF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Acesso Restrito</h2>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Painel Administrativo Ultra Bot</p>
-      </div>
-
-      <form id="loginForm" style="display: flex; flex-direction: column; gap: 20px;">
-        <div class="form-group" style="text-align: left; margin-bottom: 0;">
-          <label for="loginUser">Nome de Usuário</label>
-          <input type="text" id="loginUser" class="form-control" placeholder="admin" required style="background: rgba(0,0,0,0.5);">
-        </div>
-        
-        <div class="form-group" style="text-align: left; margin-bottom: 0;">
-          <label for="loginPassword">Senha do Administrador</label>
-          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required style="background: rgba(0,0,0,0.5);">
-        </div>
-
-        <button type="submit" class="btn-clean" style="margin-top: 10px;">
-          <i class="ri-login-box-line"></i> Entrar no Painel
-        </button>
-      </form>
-      
-      <div id="loginError" style="color: #FF0055; font-size: 0.85rem; font-weight: 800; margin-top: 15px; display: none;">
-        ⚠️ Usuário ou senha incorretos!
-      </div>
-    </div>
-  </div>
-
   <div class="admin-container">
     
     <!-- Admin Navigation -->
@@ -447,9 +413,18 @@
         <a href="index.html"><i class="ri-arrow-left-line"></i> Voltar para o Site Oficial</a>
         <h1>Painel Ultra Bot</h1>
       </div>
-      <a href="index.html" class="btn btn-outline" style="padding: 10px 20px; font-size: 0.9rem;">
-        <i class="ri-eye-line"></i> Visualizar Site
-      </a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span id="adminNameBadge" style="font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 14px; display: flex; align-items: center; gap: 6px;">
+          <i class="ri-user-3-line" style="color: var(--brand-orange);"></i>
+          <span id="adminNameText">Admin</span>
+        </span>
+        <a href="index.html" class="btn btn-outline" style="padding: 10px 20px; font-size: 0.9rem;">
+          <i class="ri-eye-line"></i> Visualizar Site
+        </a>
+        <button onclick="doLogout()" style="padding: 10px 18px; font-size: 0.85rem; font-weight: 700; background: rgba(255,0,60,0.08); border: 1px solid rgba(255,0,60,0.25); border-radius: 10px; color: #FF4466; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,0,60,0.18)'" onmouseout="this.style.background='rgba(255,0,60,0.08)'">
+          <i class="ri-logout-box-line"></i> Sair
+        </button>
+      </div>
     </div>
 
     <!-- Main Admin Layout Grid -->
@@ -695,6 +670,73 @@
             <!-- Populated via script -->
           </tbody>
         </table>
+      </div>
+    </div>
+    <!-- Users Management Card -->
+    <div class="glass-card-admin invoice-section" style="margin-top: 0;">
+      <div class="card-header-clean">
+        <i class="ri-team-fill"></i>
+        <h2>Gerenciamento de Usuários</h2>
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 20px;">Gerencie os usuários com acesso ao painel administrativo.</p>
+
+      <!-- Add User Form -->
+      <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; margin-bottom: 24px;">
+        <p style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--brand-orange); margin-bottom: 16px;">➕ Adicionar Novo Usuário</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
+          <div>
+            <label style="display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;">Nome Completo</label>
+            <input type="text" id="newUserName" class="form-control" placeholder="Ex: João Silva" style="margin: 0;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;">Usuário (login)</label>
+            <input type="text" id="newUserUsername" class="form-control" placeholder="Ex: joao.silva" style="margin: 0;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;">Senha</label>
+            <input type="password" id="newUserPassword" class="form-control" placeholder="Mínimo 6 caracteres" style="margin: 0;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;">Perfil</label>
+            <select id="newUserRole" class="form-control" style="margin: 0;">
+              <option value="admin">Administrador</option>
+              <option value="viewer">Visualizador</option>
+            </select>
+          </div>
+          <button onclick="addUser()" class="btn-clean" style="padding: 14px 20px; white-space: nowrap;"><i class="ri-user-add-line"></i> Adicionar</button>
+        </div>
+        <div id="userAddMsg" style="display:none; margin-top: 12px; font-size: 0.82rem; font-weight: 700; padding: 10px 14px; border-radius: 8px;"></div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="invoice-table-wrapper">
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Usuário (login)</th>
+              <th>Perfil</th>
+              <th>Criado em</th>
+              <th style="width: 180px; text-align: center;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Change Password Modal (inline) -->
+      <div id="changePassBox" style="display:none; margin-top: 20px; background: rgba(0,0,0,0.35); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px;">
+        <p style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--brand-orange); margin-bottom: 14px;">🔑 Alterar Senha de: <span id="changePassTarget" style="color:#fff;"></span></p>
+        <div style="display: flex; gap: 12px; align-items: flex-end;">
+          <div style="flex:1;">
+            <label style="display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px;">Nova Senha</label>
+            <input type="password" id="changePassInput" class="form-control" placeholder="Digite a nova senha" style="margin: 0;">
+          </div>
+          <button onclick="confirmChangePass()" class="btn-clean" style="padding: 14px 20px;"><i class="ri-save-line"></i> Salvar</button>
+          <button onclick="document.getElementById('changePassBox').style.display='none'" style="padding: 14px 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-muted); cursor: pointer; font-size: 0.85rem;">Cancelar</button>
+        </div>
       </div>
     </div>
 
@@ -1011,56 +1053,145 @@
       });
     }
 
-    // Check if session token exists in sessionStorage
-    const sessionToken = sessionStorage.getItem('admin_token');
-    const loginOverlay = document.getElementById('loginOverlay');
-    const loginForm = document.getElementById('loginForm');
-    const loginUser = document.getElementById('loginUser');
-    const loginPassword = document.getElementById('loginPassword');
-    const loginError = document.getElementById('loginError');
-
-    if (sessionToken === 'session_token_secure_ultrafibra_2026') {
-      loginOverlay.style.display = 'none';
+    // ---- AUTH: redirect to login.html if not authenticated ----
+    if (sessionStorage.getItem('admin_token') !== 'session_token_secure_ultrafibra_2026') {
+      window.location.href = 'login.html';
     }
 
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const user = loginUser.value.trim();
-      const pass = loginPassword.value;
-      const url = config.apiUrl || 'https://ultrafibra.onrender.com';
+    // Show logged-in user name in nav
+    const adminName = sessionStorage.getItem('admin_name') || 'Admin';
+    document.getElementById('adminNameText').textContent = adminName;
 
-      fetch(`${url}/api/login`, {
+    function doLogout() {
+      sessionStorage.removeItem('admin_token');
+      sessionStorage.removeItem('admin_name');
+      sessionStorage.removeItem('admin_role');
+      window.location.href = 'login.html';
+    }
+
+    // ---- USER MANAGEMENT ----
+    const API_BASE = config.apiUrl || 'https://ultrafibra.onrender.com';
+    let changePassUsername = null;
+
+    function loadUsers() {
+      fetch(`${API_BASE}/api/users`)
+        .then(r => r.json())
+        .then(data => {
+          const tbody = document.getElementById('usersTableBody');
+          if (!data.users || data.users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Nenhum usuário cadastrado.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = data.users.map(u => `
+            <tr>
+              <td style="font-weight:700; color:#fff;">${u.name}</td>
+              <td style="color: var(--text-muted);">${u.username}</td>
+              <td>
+                <span style="background: rgba(255,102,0,0.1); border: 1px solid rgba(255,102,0,0.3); border-radius: 20px; padding: 3px 10px; font-size: 0.75rem; font-weight: 700; color: var(--brand-orange-light);">
+                  ${u.role === 'admin' ? '👑 Administrador' : '👁 Visualizador'}
+                </span>
+              </td>
+              <td style="color: var(--text-muted); font-size: 0.82rem;">${u.createdAt || '-'}</td>
+              <td style="text-align: center;">
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                  <button onclick="openChangePass('${u.username}')" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; background: rgba(255,102,0,0.1); border: 1px solid rgba(255,102,0,0.25); border-radius: 8px; color: var(--brand-orange-light); cursor: pointer;">🔑 Senha</button>
+                  <button onclick="deleteUser('${u.username}')" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; background: rgba(255,0,60,0.08); border: 1px solid rgba(255,0,60,0.2); border-radius: 8px; color: #FF4466; cursor: pointer;">🗑 Excluir</button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        })
+        .catch(() => {
+          document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color: #FF4466;">Erro ao carregar usuários.</td></tr>';
+        });
+    }
+
+    function addUser() {
+      const name = document.getElementById('newUserName').value.trim();
+      const username = document.getElementById('newUserUsername').value.trim();
+      const password = document.getElementById('newUserPassword').value;
+      const role = document.getElementById('newUserRole').value;
+      const msgBox = document.getElementById('userAddMsg');
+
+      if (!name || !username || !password) {
+        showUserMsg('⚠️ Preencha todos os campos.', false); return;
+      }
+      if (password.length < 6) {
+        showUserMsg('⚠️ A senha deve ter pelo menos 6 caracteres.', false); return;
+      }
+
+      fetch(`${API_BASE}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: user, password: pass })
+        body: JSON.stringify({ name, username, password, role })
       })
-      .then(res => {
-        if (res.ok) return res.json();
-        throw new Error('Unauthorized');
-      })
+      .then(r => r.json())
       .then(data => {
-        if (data.success && data.token) {
-          sessionStorage.setItem('admin_token', data.token);
-          loginOverlay.style.opacity = '0';
-          setTimeout(() => {
-            loginOverlay.style.display = 'none';
-          }, 500);
-          checkWhatsAppStatus();
+        if (data.success) {
+          showUserMsg('✅ Usuário criado com sucesso!', true);
+          document.getElementById('newUserName').value = '';
+          document.getElementById('newUserUsername').value = '';
+          document.getElementById('newUserPassword').value = '';
+          loadUsers();
+        } else {
+          showUserMsg('⚠️ ' + (data.message || 'Erro ao criar usuário.'), false);
         }
       })
-      .catch(err => {
-        loginError.style.display = 'block';
-        loginPassword.value = '';
-        setTimeout(() => {
-          loginError.style.display = 'none';
-        }, 3000);
+      .catch(() => showUserMsg('❌ Erro de conexão com o servidor.', false));
+    }
+
+    function deleteUser(username) {
+      if (!confirm(`Deseja realmente excluir o usuário "${username}"?`)) return;
+      fetch(`${API_BASE}/api/users/${username}`, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) loadUsers();
+          else alert(data.message || 'Erro ao excluir.');
+        });
+    }
+
+    function openChangePass(username) {
+      changePassUsername = username;
+      document.getElementById('changePassTarget').textContent = username;
+      document.getElementById('changePassInput').value = '';
+      document.getElementById('changePassBox').style.display = 'block';
+      document.getElementById('changePassBox').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function confirmChangePass() {
+      const newPass = document.getElementById('changePassInput').value;
+      if (!newPass || newPass.length < 6) { alert('A senha deve ter pelo menos 6 caracteres.'); return; }
+      fetch(`${API_BASE}/api/users/${changePassUsername}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPass })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('changePassBox').style.display = 'none';
+          alert('✅ Senha alterada com sucesso!');
+        } else {
+          alert('Erro: ' + (data.message || 'Falha ao alterar.'));
+        }
       });
-    });
+    }
+
+    function showUserMsg(msg, success) {
+      const box = document.getElementById('userAddMsg');
+      box.textContent = msg;
+      box.style.display = 'block';
+      box.style.background = success ? 'rgba(0,200,80,0.1)' : 'rgba(255,0,60,0.1)';
+      box.style.border = `1px solid ${success ? 'rgba(0,200,80,0.3)' : 'rgba(255,0,60,0.3)'}`;
+      box.style.color = success ? '#00CC55' : '#FF4466';
+      setTimeout(() => { box.style.display = 'none'; }, 4000);
+    }
 
     // Initializations
     updateUI();
     syncWithBackend();
     checkWhatsAppStatus();
+    loadUsers();
     setInterval(checkWhatsAppStatus, 4000);
   </script>
 </body>
