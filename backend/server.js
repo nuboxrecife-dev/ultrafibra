@@ -203,16 +203,41 @@ async function connectToWhatsApp() {
                                         if (paymentsRes.ok) {
                                             const paymentsData = await paymentsRes.json();
                                             if (paymentsData.data && paymentsData.data.length > 0) {
-                                                // Sort pending payments by dueDate ascending (oldest unpaid invoice first - fatura vigente)
-                                                const pendingPayments = paymentsData.data;
-                                                pendingPayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-
-                                                const payment = pendingPayments[0];
-                                                const paymentId = payment.id;
-                                                const value = payment.value;
-                                                const dueDate = payment.dueDate; // YYYY-MM-DD
-                                                const formattedDate = dueDate.split('-').reverse().join('/');
-                                                const description = payment.description || 'Fatura Internet Ultra Fibra';
+                                                 const pendingPayments = paymentsData.data;
+                                                 const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+                                                 
+                                                 // Filter for overdue invoices (dueDate < today)
+                                                 const overduePayments = pendingPayments.filter(p => p.dueDate < todayStr);
+                                                 
+                                                 let payment = null;
+                                                 if (overduePayments.length > 0) {
+                                                     // Sort overdue ascending to select the oldest one first
+                                                     overduePayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                                                     payment = overduePayments[0];
+                                                     console.log(`Fatura em atraso selecionada: vencimento ${payment.dueDate}`);
+                                                 } else {
+                                                     // Filter for invoices due in the current month (YYYY-MM)
+                                                     const currentYearMonth = todayStr.substring(0, 7);
+                                                     const currentMonthPayments = pendingPayments.filter(p => p.dueDate.startsWith(currentYearMonth));
+                                                     
+                                                     if (currentMonthPayments.length > 0) {
+                                                         // Sort current month ascending
+                                                         currentMonthPayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                                                         payment = currentMonthPayments[0];
+                                                         console.log(`Fatura do mês selecionada: vencimento ${payment.dueDate}`);
+                                                     } else {
+                                                         // Fallback: select the next upcoming future invoice
+                                                         pendingPayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                                                         payment = pendingPayments[0];
+                                                         console.log(`Sem faturas vencidas ou do mês. Selecionada próxima futura: vencimento ${payment.dueDate}`);
+                                                     }
+                                                 }
+ 
+                                                 const paymentId = payment.id;
+                                                 const value = payment.value;
+                                                 const dueDate = payment.dueDate; // YYYY-MM-DD
+                                                 const formattedDate = dueDate.split('-').reverse().join('/');
+                                                 const description = payment.description || 'Fatura Internet Ultra Fibra';
 
                                                 // 3. Fetch Pix Copy-and-Paste Payload
                                                 const pixUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments/${paymentId}/pixQrCode`;
