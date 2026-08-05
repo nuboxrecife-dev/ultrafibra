@@ -193,8 +193,8 @@ async function connectToWhatsApp() {
                                         const customerName = customerData.data[0].name;
                                         console.log(`Cliente Asaas encontrado: ${customerName} (${customerId})`);
 
-                                        // 2. Fetch pending payments for this customer
-                                        const paymentsUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments?customer=${customerId}&status=PENDING&limit=1`;
+                                        // 2. Fetch pending payments for this customer (fetch up to 20 to find the oldest/current one)
+                                        const paymentsUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments?customer=${customerId}&status=PENDING&limit=20`;
                                         const paymentsRes = await fetch(paymentsUrl, {
                                             method: 'GET',
                                             headers: { 'access_token': dbConfig.providerToken }
@@ -203,7 +203,11 @@ async function connectToWhatsApp() {
                                         if (paymentsRes.ok) {
                                             const paymentsData = await paymentsRes.json();
                                             if (paymentsData.data && paymentsData.data.length > 0) {
-                                                const payment = paymentsData.data[0];
+                                                // Sort pending payments by dueDate ascending (oldest unpaid invoice first - fatura vigente)
+                                                const pendingPayments = paymentsData.data;
+                                                pendingPayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+                                                const payment = pendingPayments[0];
                                                 const paymentId = payment.id;
                                                 const value = payment.value;
                                                 const dueDate = payment.dueDate; // YYYY-MM-DD
