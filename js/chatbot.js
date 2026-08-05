@@ -1,16 +1,14 @@
 /* ==========================================================================
-   ULTRA FIBRA - DYNAMIC INTEGRATED CHATBOT & 2ª VIA ENGINE
+   ULTRA FIBRA - DIALOG ENGINE FOR ULTRA BOT
    ========================================================================== */
 
 class UltraBot {
   constructor() {
     this.isOpen = false;
-    this.step = 'INITIAL';
+    this.step = 'INITIAL'; // INITIAL, AWAITING_CPF, AWAITING_PROBLEM, HUMAN_HANDOVER
     this.userCpf = '';
     
-    // Load config from localStorage or fallback to default flyer options
     this.loadConfig();
-
     this.initDOM();
     this.bindEvents();
   }
@@ -18,7 +16,7 @@ class UltraBot {
   loadConfig() {
     const DEFAULT_CONFIG = {
       whatsappNumber: '55991183681',
-      welcomeMessage: 'Olá! 👋 Sou o <strong>Ultra Bot</strong> da Ultra Fibra. Como posso te ajudar hoje?',
+      welcomeMessage: 'Olá! 👋 Sou o <strong>Ultra Bot</strong>. Por favor, escolha uma das opções abaixo para iniciarmos seu atendimento:',
       invoices: {
         '12345678900': {
           titular: 'João da Silva',
@@ -94,71 +92,103 @@ class UltraBot {
   }
 
   async startWelcomeFlow() {
-    // Reload config in case it changed in the admin panel
     this.loadConfig();
-
+    this.step = 'INITIAL';
+    this.messagesContainer.innerHTML = '';
+    
     await this.showTyping(600);
-    this.addBotMessage(this.config.welcomeMessage, [
-      { text: '📄 2ª Via de Fatura (CPF)', action: () => this.promptCpfForInvoice() },
-      { text: '🚀 Assinar um Plano Fibra', action: () => this.redirectToWhatsApp('Quero assinar um plano de internet Ultra Fibra') },
-      { text: '⚡ Teste de Velocidade', action: () => this.scrollToSection('velocidade') },
-      { text: '🔧 Suporte Técnico', action: () => this.redirectToWhatsApp('Preciso de suporte técnico na minha conexão Ultra Fibra') },
-      { text: `👤 Falar no WhatsApp (${this.formatPhoneNumber(this.whatsappNumber)})`, action: () => this.redirectToWhatsApp('Olá, gostaria de falar com um atendente da Ultra Fibra') }
+    this.addBotMessage(`${this.config.welcomeMessage}`, [
+      { text: '1 - Assinar um Plano', action: () => this.selectOption1() },
+      { text: '2 - Segunda Via de Fatura', action: () => this.selectOption2() },
+      { text: '3 - Suporte Técnico', action: () => this.selectOption3() }
     ]);
   }
 
-  formatPhoneNumber(num) {
-    if (num.length >= 11) {
-      // 55991183681 -> 9 9118-3681 or (99) 9118-3681
-      const ddd = num.substring(2, 4);
-      const first = num.substring(4, 5);
-      const rest1 = num.substring(5, 9);
-      const rest2 = num.substring(9);
-      return `(${ddd}) ${first} ${rest1}-${rest2}`;
-    }
-    return num;
+  // --- FLOW 1: ASSINAR PLANO ---
+  async selectOption1() {
+    this.addUserMessage("1 - Assinar um Plano");
+    await this.showTyping(1000);
+    
+    this.addBotMessage(`Nossos planos de Internet Fibra disponíveis são:<br><br>
+    ⚡ <strong>350 Megas</strong> - R$ 70,00/mês<br>
+    ⚡ <strong>450 Megas</strong> - R$ 85,00/mês (Canais, Filmes e Séries)<br>
+    ⚡ <strong>650 Megas</strong> - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)<br><br>
+    🤖 <em>Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Por favor, aguarde um instante...</em>`);
+
+    this.step = 'HUMAN_HANDOVER';
+    this.chatInput.placeholder = "Atendimento humano em andamento...";
+    this.chatInput.disabled = true;
   }
 
-  promptCpfForInvoice() {
+  // --- FLOW 2: SEGUNDA VIA DE FATURA ---
+  async selectOption2() {
+    this.addUserMessage("2 - Segunda Via de Fatura");
+    await this.showTyping(800);
+    
     this.step = 'AWAITING_CPF';
-    this.addBotMessage(`Para consultar a sua 2ª via de fatura, por favor <strong>digite o seu CPF ou CNPJ</strong> do titular da conta:`);
-    this.chatInput.placeholder = "Digite seu CPF (ex: 123.456.789-00)";
-    this.chatInput.focus();
+    this.addBotMessage(`Por favor, <strong>digite o seu CPF ou CNPJ</strong> cadastrado para localizarmos sua fatura:`);
+    this.chatInput.placeholder = "Digite o CPF (ex: 12345678900)";
   }
 
+  // --- FLOW 3: SUPORTE TÉCNICO ---
+  async selectOption3() {
+    this.addUserMessage("3 - Suporte Técnico");
+    await this.showTyping(800);
+    
+    this.step = 'AWAITING_PROBLEM';
+    this.addBotMessage(`Por favor, descreva brevemente qual o problema ou lentidão que você está enfrentando na sua conexão:`);
+    this.chatInput.placeholder = "Descreva o seu problema aqui...";
+  }
+
+  // --- MAIN INPUT SUBMISSION HANDLER ---
   async handleUserSubmit() {
     const text = this.chatInput.value.trim();
     if (!text) return;
+
+    // Direct numeric shortcuts from welcome screen
+    if (this.step === 'INITIAL') {
+      this.chatInput.value = '';
+      if (text === '1') {
+        this.selectOption1();
+      } else if (text === '2') {
+        this.selectOption2();
+      } else if (text === '3') {
+        this.selectOption3();
+      } else {
+        this.addUserMessage(text);
+        await this.showTyping(500);
+        this.addBotMessage("Opção inválida. Digite 1, 2 ou 3 para prosseguir.");
+      }
+      return;
+    }
 
     this.addUserMessage(text);
     this.chatInput.value = '';
 
     if (this.step === 'AWAITING_CPF') {
       await this.processCpfInvoice(text);
-    } else {
-      await this.processGeneralQuery(text);
+    } else if (this.step === 'AWAITING_PROBLEM') {
+      await this.processSupportProblem(text);
     }
   }
 
+  // --- PROCESS CPF INPUT FOR INVOICE ---
   async processCpfInvoice(cpfInput) {
     const cleanCpf = cpfInput.replace(/\D/g, '');
     if (cleanCpf.length < 11) {
       await this.showTyping(500);
-      this.addBotMessage(`⚠️ CPF/CNPJ inválido. Por favor, digite os 11 dígitos do CPF (ou 14 do CNPJ):`);
+      this.addBotMessage(`⚠️ CPF/CNPJ inválido. Digite os 11 dígitos do CPF (ou 14 do CNPJ):`);
       return;
     }
 
     this.userCpf = cleanCpf;
     await this.showTyping(1000);
     
-    // Reload configs
     this.loadConfig();
     const invoice = this.config.invoices[cleanCpf];
 
     if (invoice) {
-      this.step = 'INVOICE_DISPLAYED';
-      this.addBotMessage(`✅ Localizamos seu contrato! Aqui estão os detalhes da sua fatura em aberto:`);
-      
+      this.addBotMessage(`✅ Fatura encontrada com sucesso!`);
       this.renderInvoiceCard({
         titular: invoice.titular,
         cpf: invoice.cpf,
@@ -167,46 +197,31 @@ class UltraBot {
         valor: invoice.valor,
         pixCode: '00020126580014BR.GOV.BCB.PIX013612345678-90ab-cdef-1234-567890abcdef520400005303986540599.905802BR5920ULTRA FIBRA TELECOM6009SAO PAULO62070503***6304E8A9'
       });
-    } else {
-      this.addBotMessage(`❌ Nenhuma fatura em aberto localizada para o CPF/CNPJ <strong>${cpfInput}</strong>. Deseja tentar outro CPF ou falar com um atendente?`, [
-        { text: '🔄 Digitar outro CPF', action: () => this.promptCpfForInvoice() },
-        { text: '👤 Falar com Atendente', action: () => this.redirectToWhatsApp('Preciso de ajuda para localizar minha fatura.') }
-      ]);
-      return;
-    }
-
-    await this.showTyping(800);
-    this.addBotMessage(`Como prefere receber a fatura?`, [
-      { text: '📱 Receber no WhatsApp', action: () => this.sendInvoiceToWhatsApp() },
-      { text: '🔄 Consultar outro CPF', action: () => this.promptCpfForInvoice() },
-      { text: '🏠 Menu Principal', action: () => this.startWelcomeFlow() }
-    ]);
-  }
-
-  async processGeneralQuery(text) {
-    const lower = text.toLowerCase();
-    await this.showTyping(700);
-
-    if (lower.includes('fatura') || lower.includes('2 via') || lower.includes('segunda via') || lower.includes('boleto') || lower.includes('pix')) {
-      this.promptCpfForInvoice();
-    } else if (lower.includes('plano') || lower.includes('preço') || lower.includes('valor') || lower.includes('assinar')) {
-      this.addBotMessage(`Nossos planos oficiais são:<br>
-      • <strong>350 Megas</strong> - R$ 70,00/mês<br>
-      • <strong>450 Megas</strong> - R$ 85,00/mês<br>
-      • <strong>650 Megas</strong> - R$ 99,90/mês (Canais, Filmes e Séries)<br><br>
-      Qual plano você deseja assinar?`, [
-        { text: 'Assinar 350M (R$ 70)', action: () => this.redirectToWhatsApp('Quero assinar o Plano de 350 Megas por R$ 70/mês') },
-        { text: 'Assinar 450M (R$ 85)', action: () => this.redirectToWhatsApp('Quero assinar o Plano de 450 Megas por R$ 85/mês') },
-        { text: 'Assinar 650M (R$ 99,90)', action: () => this.redirectToWhatsApp('Quero assinar o Plano Destaque de 650 Megas com TV por R$ 99,90/mês') }
+      
+      await this.showTyping(1000);
+      this.addBotMessage(`Deseja realizar mais alguma operação?`, [
+        { text: '🏠 Voltar para o Menu Principal', action: () => this.startWelcomeFlow() },
+        { text: '👤 Falar com Atendente no WhatsApp', action: () => this.redirectToWhatsApp('Preciso de atendimento para minha fatura.') }
       ]);
     } else {
-      this.addBotMessage(`Posso te ajudar com a 2ª via de fatura, informações sobre planos ou conectar você com nossa equipe no WhatsApp!`, [
-        { text: '📄 Emitir 2ª Via de Fatura', action: () => this.promptCpfForInvoice() },
-        { text: '💬 Atendimento via WhatsApp', action: () => this.redirectToWhatsApp('Olá, preciso de informações da Ultra Fibra') }
+      this.addBotMessage(`❌ Nenhuma fatura em aberto cadastrada para o documento <strong>${cpfInput}</strong>.`, [
+        { text: '🔄 Tentar outro CPF', action: () => this.promptCpfForInvoice() },
+        { text: '👤 Falar com Atendente', action: () => this.redirectToWhatsApp(`Preciso de auxílio para localizar a fatura vinculada ao CPF ${cpfInput}.`) }
       ]);
     }
   }
 
+  // --- PROCESS SUPPORT PROBLEM ENTRY ---
+  async processSupportProblem(problemText) {
+    await this.showTyping(1000);
+    this.addBotMessage(`🤖 <em>Registrei sua ocorrência: "${problemText}". Estou transferindo você agora mesmo para o suporte especializado humano analisar sua conexão. Por favor, aguarde...</em>`);
+    
+    this.step = 'HUMAN_HANDOVER';
+    this.chatInput.placeholder = "Atendimento humano em andamento...";
+    this.chatInput.disabled = true;
+  }
+
+  // --- RENDERING WIDGET CARDS & MODALS ---
   renderInvoiceCard(data) {
     const cardEl = document.createElement('div');
     cardEl.className = 'invoice-chat-card';
@@ -304,14 +319,14 @@ class UltraBot {
     this.invoiceModal.classList.add('active');
   }
 
-  sendInvoiceToWhatsApp() {
-    const text = encodeURIComponent(`Olá, gostaria de receber a 2ª via da fatura do CPF ${this.userCpf} diretamente aqui no WhatsApp.`);
-    window.open(`https://wa.me/${this.whatsappNumber}?text=${text}`, '_blank');
-  }
-
   redirectToWhatsApp(message) {
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/${this.whatsappNumber}?text=${encoded}`, '_blank');
+  }
+
+  sendInvoiceToWhatsApp() {
+    const text = encodeURIComponent(`Olá, gostaria de receber a 2ª via da fatura do CPF ${this.userCpf} diretamente aqui no WhatsApp.`);
+    window.open(`https://wa.me/${this.whatsappNumber}?text=${text}`, '_blank');
   }
 
   scrollToSection(id) {
@@ -385,12 +400,6 @@ class UltraBot {
   getCurrentTime() {
     const now = new Date();
     return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  getUpcomingDueDate() {
-    const d = new Date();
-    d.setDate(d.getDate() + 5);
-    return d.toLocaleDateString('pt-BR');
   }
 }
 
