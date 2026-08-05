@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ULTRA FIBRA | Navegue com Ultra Velocidade, Seja Livre</title>
+  <meta name="description" content="Ultra Fibra - Provedor de Internet Banda Larga 100% Fibra Óptica. Planos de 350M (R$70), 450M (R$85) e 650M (R$99,90 com Canais, Filmes e Séries). Emissão de 2ª via instantânea no WhatsApp (9 9118-3681).">
+  
+  <!-- Remixicon Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+
+  <!-- Stylesheets Matched to Official Flyer and Brand Logo -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/chatbot.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       HEADER & NAVIGATION (OFFICIAL LOGO UPDATED)
+       ========================================================================== -->
+  <header class="navbar">
+    <div class="container nav-container">
+      
+      <!-- Official Ultra Fibra Brand Logo -->
+      <a href="#" class="official-logo-box">
+        <div class="official-logo-text">
+          <span class="ultra-word">ULTRA</span>
+          <span class="fibra-word">FIBRA</span>
+          <span class="chevrons">&gt;&gt;</span>
+        </div>
+        <div class="official-logo-slogan">NAVEGUE COM ULTRA VELOCIDADE, SEJA LIVRE.</div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#planos" class="nav-link">Planos Fibra</a></li>
+        <li><a href="#tv-filmes" class="nav-link">Canais, Filmes & Séries</a></li>
+        <li><a href="#cobertura" class="nav-link">Consultar Cobertura</a></li>
+        <li><a href="#velocidade" class="nav-link">Teste de Velocidade</a></li>
+        <li><a href="#faq" class="nav-link">Dúvidas</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="btn btn-outline" onclick="window.ultraBot.toggleChat(true); window.ultraBot.promptCpfForInvoice();">
+          <i class="ri-file-text-line"></i> 2ª Via de Fatura
+        </button>
+        <button class="btn btn-whatsapp" onclick="window.ultraBot.redirectToWhatsApp('Olá! Vim pelo site da Ultra Fibra e gostaria de atendimento.');">
+          <i class="ri-whatsapp-line"></i> (99) 9118-3681
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       HERO SECTION (FLYER MOTIF & GOLDEN SEAL)
+       ========================================================================== -->
+  <section class="hero">
+    <div class="hero-bg-overlay"></div>
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="slogan-tagline">NAVEGUE COM ULTRA VELOCIDADE, SEJA LIVRE.</div>
+        
+        <h1>Planos de <br><span class="text-fibra">Internet Fibra</span></h1>
+        <p>Mais velocidade, estabilidade e entretenimento completo para sua casa com a melhor tecnologia de fibra óptica da região.</p>
+
+        <div class="seal-gold-badge">
+          <i class="ri-star-fill"></i> 100% FIBRA ÓPTICA <i class="ri-star-fill"></i>
+        </div>
+
+        <div class="hero-cta-group">
+          <a href="#planos" class="btn btn-primary">
+            Ver Planos de Internet <i class="ri-arrow-right-line"></i>
+          </a>
+          <button class="btn btn-whatsapp" onclick="window.ultraBot.toggleChat(true); window.ultraBot.promptCpfForInvoice();">
+            <i class="ri-file-paper-2-line"></i> Emitir 2ª Via no WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       PLANS SECTION (NEON CARDS EXACTLY AS SHOWN IN FLYER)
+       ========================================================================== -->
+  <section class="plans-section" id="planos">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">TABELA OFICIAL DE PLANOS</span>
+        <h2 class="section-title">PLANOS DE <span class="text-fibra">INTERNET FIBRA</span></h2>
+        <p class="section-subtitle">Escolha o plano ideal para navegar, jogar e assistir conteúdos em altíssima definição.</p>
+      </div>
+
+      <div class="plans-grid">
+        
+        <!-- PLANO 1: 350 MEGAS -->
+        <div class="plan-card">
+          <div class="plan-header">
+            <div class="plan-speed">350 <span>MEGAS</span></div>
+          </div>
+
+          <div class="plan-price-container">
+            <div class="plan-price-tag">POR APENAS</div>
+            <div>
+              <span style="font-size: 1.5rem; font-weight: 900; color: var(--brand-orange);">R$</span>
+              <span class="plan-price-val">70</span>
+              <span class="plan-price-period">/mês</span>
+            </div>
+          </div>
+
+          <ul class="plan-features">
+            <li><i class="ri-wifi-fill"></i> Internet Ultra Rápida</li>
+            <li><i class="ri-checkbox-circle-fill"></i> 350 Megas Download e Upload</li>
+            <li><i class="ri-checkbox-circle-fill"></i> Wi-Fi Dual Band Incluso</li>
+            <li><i class="ri-checkbox-circle-fill"></i> Instalação sem Custo Adicional</li>
+            <li><i class="ri-checkbox-circle-fill"></i> Suporte Especializado</li>
+          </ul>
+
+          <button class="btn btn-primary btn-plan-subscribe" data-plan="350 Megas" data-price="R$ 70,00" style="width: 100%;">
+            Assinar 350 Megas <i class="ri-whatsapp-line"></i>
+          </button>
+        </div>
+
+        <!-- PLANO 2: 450 MEGAS -->
+        <div class="plan-card">
+          <div class="plan-header">
+            <div class="plan-speed">450 <span>MEGAS</span></div>
+          </div>
+
+          <div class="plan-price-container">
+            <div class="plan-price-tag">POR APENAS</div>
+            <div>
+              <span style="font-size: 1.5rem; font-weight: 900; color: var(--brand-orange);">R$</span>
+              <span class="plan-price-val">85</span>
+              <span class="plan-price-period">/mês</span>
+            </div>
+          </div>
+
+          <ul class="plan-features">
+            <li><i class="ri-wifi-fill"></i> Internet Ultra Rápida</li>
+            <li class="tv-highlight"><i class="ri-tv-2-fill"></i> <strong>Canais, Filmes e Séries Inclusos</strong></li>
+            <li><i class="ri-checkbox-circle-fill"></i> 450 Megas Altíssima Velocidade</li>
+            <li><i class="ri-checkbox-circle-fill"></i> Wi-Fi Dual Band Alta Performance</li>
+            <li><i class="ri-checkbox-circle-fill"></i> Suporte Prioritário</li>
+          </ul>
+
+          <button class="btn btn-primary btn-plan-subscribe" data-plan="450 Megas com TV" data-price="R$ 85,00" style="width: 100%;">
+            Assinar 450 Megas <i class="ri-whatsapp-line"></i>
+          </button>
+        </div>
+
+        <!-- PLANO 3: 650 MEGAS (★ PLANO DESTAQUE IN FLYER) -->
+        <div class="plan-card destaque">
+          <div class="plan-badge destaque-badge">★ PLANO DESTAQUE</div>
+
+          <div class="plan-header">
+            <div class="plan-speed" style="color: var(--gold);">650 <span>MEGAS</span></div>
+          </div>
+
+          <div class="plan-price-container">
+            <div class="plan-price-tag" style="color: var(--gold);">POR APENAS</div>
+            <div>
+              <span style="font-size: 1.5rem; font-weight: 900; color: var(--gold);">R$</span>
+              <span class="plan-price-val">99<span style="font-size: 1.8rem;">,90</span></span>
+              <span class="plan-price-period">/mês</span>
+            </div>
+          </div>
+
+          <ul class="plan-features">
+            <li class="tv-highlight" style="background: rgba(255, 215, 0, 0.25); border-color: var(--gold);">
+              <i class="ri-film-fill"></i> <strong>CANAIS, FILMES E SÉRIES</strong>
+            </li>
+            <li><i class="ri-wifi-fill"></i> Velocidade Máxima 650 Mbps</li>
+            <li><i class="ri-gamepad-fill"></i> Baixa Latência para Games Online</li>
+            <li><i class="ri-checkbox-circle-fill"></i> Wi-Fi 6 de Última Geração</li>
+            <li><i class="ri-customer-service-fill"></i> Suporte Técnico VIP 24h</li>
+          </ul>
+
+          <button class="btn btn-primary btn-plan-subscribe" data-plan="650 Megas PLANO DESTAQUE" data-price="R$ 99,90" style="width: 100%; background: var(--grad-gold); color: #0A0604; font-weight: 900; box-shadow: var(--shadow-gold-glow);">
+            Assinar 650 Megas <i class="ri-whatsapp-line"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- FLYER WHATSAPP ACTION BANNER (MATCHING PHONE IN FLYER IMAGE) -->
+      <div class="flyer-phone-banner">
+        <h3>Ligue Agora e Agende Sua Instalação!</h3>
+        <a href="https://wa.me/55991183681?text=Ol%C3%A1%21%20Gostaria%20de%20agendar%20minha%20instala%C3%A7%C3%A3o%20da%20Ultra%20Fibra" target="_blank" class="flyer-phone-box">
+          <i class="ri-whatsapp-fill"></i> 9 9118-3681
+        </a>
+      </div>
+
+      <!-- FLYER BOTTOM FEATURES ROW -->
+      <div class="flyer-features-row">
+        <div class="flyer-feat-box">
+          <i class="ri-dashboard-3-line"></i>
+          <span>Alta Velocidade</span>
+        </div>
+        <div class="flyer-feat-box">
+          <i class="ri-shield-check-line"></i>
+          <span>Conexão Estável</span>
+        </div>
+        <div class="flyer-feat-box">
+          <i class="ri-wifi-line"></i>
+          <span>100% Fibra Óptica</span>
+        </div>
+        <div class="flyer-feat-box">
+          <i class="ri-headset-line"></i>
+          <span>Suporte Especializado</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       STREAMING SHOWCASE
+       ========================================================================== -->
+  <section class="streaming-section" id="tv-filmes">
+    <div class="container streaming-grid">
+      <div class="streaming-image-box">
+        <img src="assets/images/streaming.jpg" alt="Ultra Play - Canais, Filmes e Séries">
+      </div>
+
+      <div class="streaming-content">
+        <span class="section-tag">ENTRETENIMENTO INCLUSO</span>
+        <h2>Canais, Filmes e Séries Para Toda a Família</h2>
+        <p>Aproveite o melhor do entretenimento com o app incluso nos planos de 450M e 650M da Ultra Fibra. Assista a esportes, séries do momento e lançamentos direto na sua Smart TV.</p>
+
+        <button class="btn btn-whatsapp" onclick="window.ultraBot.redirectToWhatsApp('Gostaria de tirar dúvidas sobre a grade de canais e filmes.');">
+          <i class="ri-play-circle-line"></i> Falar com Atendente no WhatsApp
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       TOOLS SECTION (COVERAGE & SPEEDTEST)
+       ========================================================================== -->
+  <section class="tools-section" id="cobertura">
+    <div class="container tools-grid">
+      
+      <div class="tool-card">
+        <h3>📍 Consulte a Cobertura na Sua Rua</h3>
+        <p>Digite seu CEP para verificar a disponibilidade da fibra óptica no seu endereço.</p>
+        
+        <form class="coverage-form" id="coverageForm">
+          <input type="text" id="cepInput" placeholder="Digite seu CEP (ex: 01001-000)" required>
+          <button type="submit" class="btn btn-primary">Verificar</button>
+        </form>
+        
+        <div class="coverage-result" id="coverageResult"></div>
+      </div>
+
+      <div class="tool-card" id="velocidade" style="text-align: center;">
+        <h3>⚡ Teste de Velocidade Instantâneo</h3>
+        <p>Simule a velocidade e o ping da sua conexão atual.</p>
+
+        <div class="speedometer-box" style="margin: 20px 0;">
+          <div class="speed-display" id="speedValue">0</div>
+          <div style="font-size: 1rem; color: var(--text-muted);">Mbps Download</div>
+          <div style="font-size: 0.9rem; color: var(--brand-orange);" id="speedPing">Ping: -- ms</div>
+        </div>
+
+        <button class="btn btn-outline" id="startSpeedTestBtn">
+          <i class="ri-play-line"></i> Iniciar Teste de Velocidade
+        </button>
+        <div id="speedTestResult"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FAQ ACCORDION
+       ========================================================================== -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">CENTRAL DE AJUDA</span>
+        <h2 class="section-title">Perguntas Frequentes</h2>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question">
+            Como emitir a 2ª via da minha fatura de forma rápida?
+            <i class="ri-arrow-down-s-line"></i>
+          </button>
+          <div class="faq-answer">
+            Basta clicar no botão do <strong>Ultra Bot</strong> (no canto inferior da tela) ou no menu <strong>2ª Via de Fatura</strong>. Digite o seu CPF e receba o código PIX Copia e Cola, código de barras e link para imprimir em PDF instantaneamente.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            Qual o número de telefone e WhatsApp da Ultra Fibra?
+            <i class="ri-arrow-down-s-line"></i>
+          </button>
+          <div class="faq-answer">
+            Nosso atendimento oficial via WhatsApp é pelo número <strong>(99) 9118-3681</strong>. Atendemos para contratação, suporte técnico e segundas vias 24h.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FOOTER (OFFICIAL LOGO)
+       ========================================================================== -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <a href="#" class="official-logo-box" style="margin-bottom: 16px;">
+          <div class="official-logo-text">
+            <span class="ultra-word">ULTRA</span>
+            <span class="fibra-word">FIBRA</span>
+            <span class="chevrons">&gt;&gt;</span>
+          </div>
+          <div class="official-logo-slogan">NAVEGUE COM ULTRA VELOCIDADE, SEJA LIVRE.</div>
+        </a>
+        <p>Provedor de internet banda larga 100% fibra óptica com ultra velocidade, estabilidade e atendimento 24h.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Planos</h4>
+        <ul class="footer-links">
+          <li><a href="#planos">350 Megas - R$ 70,00/mês</a></li>
+          <li><a href="#planos">450 Megas - R$ 85,00/mês</a></li>
+          <li><a href="#planos">650 Megas Destaque + TV - R$ 99,90/mês</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Autoatendimento</h4>
+        <ul class="footer-links">
+          <li><a href="#" onclick="window.ultraBot.toggleChat(true); window.ultraBot.promptCpfForInvoice();">Emitir 2ª Via (CPF)</a></li>
+          <li><a href="#cobertura">Consultar Cobertura</a></li>
+          <li><a href="#velocidade">Teste de Velocidade</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>WhatsApp Oficial</h4>
+        <p>Ligue agora ou chame no WhatsApp:</p>
+        <a href="https://wa.me/55991183681" target="_blank" class="btn btn-whatsapp" style="width: 100%;">
+          <i class="ri-whatsapp-fill"></i> (99) 9118-3681
+        </a>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>© 2026 Ultra Fibra Telecomunicações. Todos os direitos reservados. Navegue com Ultra Velocidade, Seja Livre.</p>
+    </div>
+  </footer>
+
+  <!-- INTEGRATED CHATBOT WIDGET -->
+  <div class="chatbot-trigger-btn" id="chatbotTrigger" title="Atendimento & 2ª Via de Fatura">
+    <i class="ri-question-answer-line"></i>
+    <span class="chatbot-badge-notification">1</span>
+  </div>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <div class="chat-header-user">
+        <img src="assets/images/bot-avatar.jpg" alt="Ultra Bot" class="chat-avatar">
+        <div class="chat-bot-info">
+          <h4>Ultra Bot 🤖</h4>
+          <span class="chat-bot-status"><span class="status-dot"></span> Atendimento 24h</span>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-header-btn" id="chatClose" title="Fechar"><i class="ri-close-line"></i></button>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <div class="chat-input-area">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Digite sua mensagem ou CPF...">
+      <button class="chat-send-btn" id="chatSend"><i class="ri-send-plane-fill"></i></button>
+    </div>
+  </div>
+
+  <!-- INVOICE MODAL PREVIEW -->
+  <div class="invoice-modal" id="invoiceModal">
+    <div class="invoice-paper">
+      <i class="ri-close-line invoice-modal-close" id="invoiceModalClose"></i>
+      <div id="invoicePaperContent"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/chatbot.js"></script>
+  <script src="js/speedtest.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
