@@ -108,8 +108,25 @@ async function connectToWhatsApp() {
             }
             const session = sessions.get(from);
 
-            // Ignore if handover active
+            // Normalize incoming text
+            const cleanText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            const greetings = ['oi', 'ola', 'hello', 'bom dia', 'boa tarde', 'boa noite', 'comecar', 'inicio', 'iniciar', 'menu', 'voltar', '0'];
+            const explicitReset = ['menu', 'voltar', '0', 'comecar', 'inicio'];
+
+            // Ignore if handover active, unless explicit reset word is received
             if (session.step === 'HUMAN_HANDOVER') {
+                if (explicitReset.includes(cleanText)) {
+                    session.step = 'INITIAL';
+                    await sock.sendMessage(from, { text: dbConfig.welcomeMessage });
+                    return;
+                }
+                return;
+            }
+
+            // Reset conversation and show menu if client greets the bot
+            if (greetings.includes(cleanText)) {
+                session.step = 'INITIAL';
+                await sock.sendMessage(from, { text: dbConfig.welcomeMessage });
                 return;
             }
 
