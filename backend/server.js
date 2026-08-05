@@ -21,6 +21,7 @@ const sessions = new Map();
 // Local DB configuration synced with admin panel
 let dbConfig = {
     whatsappNumber: '55991183681',
+    botActive: true,
     welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1 - Assinar um Plano\n2 - Segunda Via de Fatura\n3 - Suporte Técnico\n\nResponda apenas com o número da opção desejada.',
     invoices: {
         '12345678900': {
@@ -93,6 +94,11 @@ async function connectToWhatsApp() {
             const text = (msg.message?.conversation || msg.message?.extendedTextMessage?.text || '').trim();
             
             if (!text) return;
+
+            // Ignore if bot is deactivated in config
+            if (dbConfig.botActive === false) {
+                return;
+            }
 
             // Initialize user session
             if (!sessions.has(from)) {
