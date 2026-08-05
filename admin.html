@@ -405,6 +405,40 @@
 </head>
 <body>
 
+  <!-- Beautiful Admin Login Overlay -->
+  <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8, 5, 4, 0.96); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: all 0.5s ease;">
+    <div class="glass-card-admin" style="width: 100%; max-width: 400px; padding: 40px; border-color: var(--brand-orange); box-shadow: 0 0 50px rgba(255, 102, 0, 0.25); text-align: center;">
+      
+      <div style="margin-bottom: 30px;">
+        <div style="width: 75px; height: 75px; border-radius: 50%; background: rgba(255, 102, 0, 0.1); border: 2px solid var(--brand-orange); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+          <i class="ri-lock-password-fill" style="font-size: 2.2rem; color: var(--brand-orange-light);"></i>
+        </div>
+        <h2 style="font-size: 1.5rem; font-weight: 900; color: #FFFFFF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Acesso Restrito</h2>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Painel Administrativo Ultra Bot</p>
+      </div>
+
+      <form id="loginForm" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="form-group" style="text-align: left; margin-bottom: 0;">
+          <label for="loginUser">Nome de Usuário</label>
+          <input type="text" id="loginUser" class="form-control" placeholder="admin" required style="background: rgba(0,0,0,0.5);">
+        </div>
+        
+        <div class="form-group" style="text-align: left; margin-bottom: 0;">
+          <label for="loginPassword">Senha do Administrador</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required style="background: rgba(0,0,0,0.5);">
+        </div>
+
+        <button type="submit" class="btn-clean" style="margin-top: 10px;">
+          <i class="ri-login-box-line"></i> Entrar no Painel
+        </button>
+      </form>
+      
+      <div id="loginError" style="color: #FF0055; font-size: 0.85rem; font-weight: 800; margin-top: 15px; display: none;">
+        ⚠️ Usuário ou senha incorretos!
+      </div>
+    </div>
+  </div>
+
   <div class="admin-container">
     
     <!-- Admin Navigation -->
@@ -974,6 +1008,52 @@
         wwebInstruction.innerHTML = '⚠️ Servidor offline. Verifique se o bot no <strong>Render</strong> está rodando.';
       });
     }
+
+    // Check if session token exists in sessionStorage
+    const sessionToken = sessionStorage.getItem('admin_token');
+    const loginOverlay = document.getElementById('loginOverlay');
+    const loginForm = document.getElementById('loginForm');
+    const loginUser = document.getElementById('loginUser');
+    const loginPassword = document.getElementById('loginPassword');
+    const loginError = document.getElementById('loginError');
+
+    if (sessionToken === 'session_token_secure_ultrafibra_2026') {
+      loginOverlay.style.display = 'none';
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = loginUser.value.trim();
+      const pass = loginPassword.value;
+      const url = config.apiUrl || 'https://ultrafibra.onrender.com';
+
+      fetch(`${url}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass })
+      })
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error('Unauthorized');
+      })
+      .then(data => {
+        if (data.success && data.token) {
+          sessionStorage.setItem('admin_token', data.token);
+          loginOverlay.style.opacity = '0';
+          setTimeout(() => {
+            loginOverlay.style.display = 'none';
+          }, 500);
+          checkWhatsAppStatus();
+        }
+      })
+      .catch(err => {
+        loginError.style.display = 'block';
+        loginPassword.value = '';
+        setTimeout(() => {
+          loginError.style.display = 'none';
+        }, 3000);
+      });
+    });
 
     // Initializations
     updateUI();
