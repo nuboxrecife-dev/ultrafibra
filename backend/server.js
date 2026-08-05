@@ -346,6 +346,19 @@ async function connectToWhatsApp() {
 }
 
 // --- API ENDPOINTS ---
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    // Default credentials: admin / admin123
+    const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+    const ADMIN_PASS = process.env.ADMIN_PASS || 'admin123';
+    
+    if (username === ADMIN_USER && password === ADMIN_PASS) {
+        res.json({ success: true, token: 'session_token_secure_ultrafibra_2026' });
+    } else {
+        res.status(401).json({ success: false, message: 'Usuário ou senha incorretos' });
+    }
+});
+
 app.get('/api/status', (req, res) => {
     res.json({
         status: connectionStatus,
