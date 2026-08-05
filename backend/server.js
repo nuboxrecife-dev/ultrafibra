@@ -22,7 +22,9 @@ const sessions = new Map();
 let dbConfig = {
     whatsappNumber: '55991183681',
     botActive: true,
-    welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1 - Assinar um Plano\n2 - Segunda Via de Fatura\n3 - Suporte Técnico\n\nResponda apenas com o número da opção desejada.',
+    welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.',
+    planMessage: 'Planos de Internet Ultra Fibra disponíveis:\n\n⚡ 350 Megas - R$ 70,00/mês\n⚡ 450 Megas - R$ 85,00/mês (Canais, Filmes e Séries)\n⚡ 650 Megas - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)\n\n🤖 Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Aguarde um instante...',
+    supportMessage: 'Por favor, descreva qual o problema ou lentidão que você está enfrentando na sua conexão:',
     invoices: {
         '12345678900': {
             titular: 'João da Silva',
@@ -114,18 +116,13 @@ async function connectToWhatsApp() {
             try {
                 if (session.step === 'INITIAL') {
                     if (text === '1') {
-                        const reply = `Planos de Internet Ultra Fibra:\n\n` +
-                                      `⚡ 350 Megas - R$ 70,00/mês\n` +
-                                      `⚡ 450 Megas - R$ 85,00/mês (Canais, Filmes e Séries)\n` +
-                                      `⚡ 650 Megas - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)\n\n` +
-                                      `🤖 Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Aguarde um instante...`;
-                        await sock.sendMessage(from, { text: reply });
+                        await sock.sendMessage(from, { text: dbConfig.planMessage || 'Transferindo para o setor de planos...' });
                         session.step = 'HUMAN_HANDOVER';
                     } else if (text === '2') {
                         await sock.sendMessage(from, { text: `Por favor, digite o CPF cadastrado do titular da conta (apenas números):` });
                         session.step = 'AWAITING_CPF';
                     } else if (text === '3') {
-                        await sock.sendMessage(from, { text: `Por favor, descreva qual o problema ou lentidão que você está enfrentando na sua conexão:` });
+                        await sock.sendMessage(from, { text: dbConfig.supportMessage || 'Como posso te ajudar no suporte?' });
                         session.step = 'AWAITING_PROBLEM';
                     } else {
                         await sock.sendMessage(from, { text: dbConfig.welcomeMessage });
@@ -186,6 +183,39 @@ app.post('/api/config', (req, res) => {
 
 app.get('/api/config', (req, res) => {
     res.json(dbConfig);
+});
+
+app.post('/api/disconnect', async (req, res) => {
+    const fs = require('fs');
+    try {
+        console.log('Solicitação de desconexão recebida.');
+        if (sock) {
+            await sock.logout().catch(() => {});
+            sock.end();
+            sock = null;
+        }
+    } catch (err) {
+        console.log('Nota ao encerrar socket:', err.message);
+    }
+    
+    // Clear credentials folder to allow new QR generation
+    const authDir = path.join(__dirname, '.baileys_auth');
+    try {
+        if (fs.existsSync(authDir)) {
+            fs.rmSync(authDir, { recursive: true, force: true });
+            console.log('Pasta de credenciais .baileys_auth removida.');
+        }
+    } catch (err) {
+        console.error('Erro ao limpar pasta de credenciais:', err);
+    }
+
+    connectionStatus = 'DISCONNECTED';
+    qrCodeImage = '';
+    
+    // Start a fresh connection wait
+    connectToWhatsApp().catch(err => console.error("Erro ao reiniciar wweb socket:", err));
+    
+    res.json({ success: true });
 });
 
 // Run client connection
