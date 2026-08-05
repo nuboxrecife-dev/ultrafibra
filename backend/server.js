@@ -32,6 +32,9 @@ let dbConfig = {
     welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.',
     planMessage: 'Planos de Internet Ultra Fibra disponíveis:\n\n⚡ 350 Megas - R$ 70,00/mês\n⚡ 450 Megas - R$ 85,00/mês (Canais, Filmes e Séries)\n⚡ 650 Megas - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)\n\n🤖 Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Aguarde um instante...',
     supportMessage: 'Por favor, selecione qual a sua solicitação ou problema de suporte:\n\n1️⃣ - Troca de Senha\n2️⃣ - Lentidão na Conexão\n3️⃣ - Mudança de Endereço\n4️⃣ - Outros\n\nPor favor, responda digitando apenas o número correspondente.',
+    adminUsers: [
+        { username: 'admin', password: 'admin123', name: 'Administrador', role: 'admin', createdAt: '2026-08-05' }
+    ],
     invoices: {
         '12345678900': {
             titular: 'João da Silva',
@@ -366,15 +369,52 @@ async function connectToWhatsApp() {
 // --- API ENDPOINTS ---
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    // Default credentials: admin / admin123
-    const ADMIN_USER = process.env.ADMIN_USER || 'admin';
-    const ADMIN_PASS = process.env.ADMIN_PASS || 'admin123';
-    
-    if (username === ADMIN_USER && password === ADMIN_PASS) {
-        res.json({ success: true, token: 'session_token_secure_ultrafibra_2026' });
+    const users = dbConfig.adminUsers || [];
+    const user = users.find(u => u.username === username && u.password === password);
+    if (user) {
+        res.json({ success: true, token: 'session_token_secure_ultrafibra_2026', name: user.name, role: user.role });
     } else {
         res.status(401).json({ success: false, message: 'Usuário ou senha incorretos' });
     }
+});
+
+// --- USER MANAGEMENT ENDPOINTS ---
+app.get('/api/users', (req, res) => {
+    const users = (dbConfig.adminUsers || []).map(u => ({ username: u.username, name: u.name, role: u.role, createdAt: u.createdAt }));
+    res.json({ success: true, users });
+});
+
+app.post('/api/users', (req, res) => {
+    const { username, password, name, role } = req.body;
+    if (!username || !password || !name) return res.status(400).json({ success: false, message: 'Campos obrigatórios: username, password, name' });
+    if (!dbConfig.adminUsers) dbConfig.adminUsers = [];
+    if (dbConfig.adminUsers.find(u => u.username === username)) return res.status(409).json({ success: false, message: 'Usuário já existe' });
+    const newUser = { username, password, name, role: role || 'admin', createdAt: new Date().toISOString().split('T')[0] };
+    dbConfig.adminUsers.push(newUser);
+    try { fs.writeFileSync(configFilePath, JSON.stringify(dbConfig, null, 2), 'utf8'); } catch(e) {}
+    res.json({ success: true, user: { username: newUser.username, name: newUser.name, role: newUser.role, createdAt: newUser.createdAt } });
+});
+
+app.put('/api/users/:username', (req, res) => {
+    const { username } = req.params;
+    const { password, name, role } = req.body;
+    if (!dbConfig.adminUsers) return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+    const idx = dbConfig.adminUsers.findIndex(u => u.username === username);
+    if (idx === -1) return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+    if (name) dbConfig.adminUsers[idx].name = name;
+    if (role) dbConfig.adminUsers[idx].role = role;
+    if (password) dbConfig.adminUsers[idx].password = password;
+    try { fs.writeFileSync(configFilePath, JSON.stringify(dbConfig, null, 2), 'utf8'); } catch(e) {}
+    res.json({ success: true });
+});
+
+app.delete('/api/users/:username', (req, res) => {
+    const { username } = req.params;
+    if (!dbConfig.adminUsers) return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+    if (dbConfig.adminUsers.length === 1) return res.status(400).json({ success: false, message: 'Não é possível excluir o último usuário' });
+    dbConfig.adminUsers = dbConfig.adminUsers.filter(u => u.username !== username);
+    try { fs.writeFileSync(configFilePath, JSON.stringify(dbConfig, null, 2), 'utf8'); } catch(e) {}
+    res.json({ success: true });
 });
 
 app.get('/api/status', (req, res) => {
