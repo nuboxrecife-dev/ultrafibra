@@ -1,7 +1,7 @@
 {
   "name": "ultrafibra-whatsapp-backend",
   "version": "1.0.0",
-  "description": "Backend Node.js para autenticação do WhatsApp Web e chatbot da Ultra Fibra",
+  "description": "Backend Node.js leve usando Baileys para WhatsApp Web e chatbot da Ultra Fibra",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -9,7 +9,8 @@
   "dependencies": {
     "express": "^4.18.2",
     "qrcode": "^1.5.3",
-    "whatsapp-web.js": "^1.23.0",
+    "@whiskeysockets/baileys": "^6.5.0",
+    "@hapi/boom": "^10.0.1",
     "cors": "^2.8.5"
   }
 }
