@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo | Ultra Bot Configurações</title>
+  
+  <!-- Remixicon -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    /* Custom Admin Portal overrides */
+    .admin-container {
+      padding-top: 40px;
+      padding-bottom: 80px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 30px;
+    }
+
+    @media (max-width: 900px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--brand-orange-light);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--brand-orange);
+      border-radius: var(--radius-sm);
+      color: #FFFFFF;
+      font-size: 0.95rem;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .form-control:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(255, 179, 0, 0.2);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .admin-header {
+      border-bottom: 2px solid var(--brand-orange);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title-icon {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 102, 0, 0.2);
+      padding-bottom: 10px;
+    }
+
+    /* Live Preview Panel */
+    .preview-box {
+      border: 2px dashed var(--gold);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.02);
+      position: sticky;
+      top: 30px;
+    }
+
+    /* Table styling for Invoice Manager */
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 0.85rem;
+    }
+
+    .invoice-table th, .invoice-table td {
+      border: 1px solid rgba(255, 102, 0, 0.2);
+      padding: 10px;
+      text-align: left;
+    }
+
+    .invoice-table th {
+      background: rgba(255, 102, 0, 0.1);
+      color: var(--brand-orange-light);
+    }
+
+    .badge-status {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-status.aberto {
+      background: rgba(255, 180, 0, 0.15);
+      color: #FFC107;
+    }
+
+    .badge-status.pago {
+      background: rgba(37, 211, 102, 0.15);
+      color: #25D366;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container admin-container">
+    
+    <!-- Admin Header -->
+    <div class="admin-header">
+      <div>
+        <a href="index.html" style="font-size: 0.9rem; color: var(--brand-orange-light); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+          <i class="ri-arrow-left-line"></i> Voltar para o Site Oficial
+        </a>
+        <h1 class="gradient-text" style="font-size: 2.25rem; font-weight: 900; background: var(--grad-orange); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PORTAL ADMIN | ULTRA BOT</h1>
+      </div>
+      <a href="index.html" class="btn btn-outline">
+        <i class="ri-eye-line"></i> Ver Site ao Vivo
+      </a>
+    </div>
+
+    <div class="admin-grid">
+      
+      <!-- Left Column: Settings Form -->
+      <div class="glass-card" style="padding: 30px; border-color: rgba(255,102,0,0.3);">
+        <div class="card-title-icon">
+          <i class="ri-settings-4-fill" style="font-size: 1.5rem; color: var(--brand-orange);"></i>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #FFF;">Configurações do Chatbot</h2>
+        </div>
+
+        <form id="adminSettingsForm">
+          <!-- WhatsApp Number -->
+          <div class="form-group">
+            <label for="waNumber">WhatsApp de Vendas/Atendimento</label>
+            <input type="text" id="waNumber" class="form-control" placeholder="Ex: 55991183681">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Inclua o código de país (55) e o DDD.</span>
+          </div>
+
+          <!-- Welcome / Greeting Message -->
+          <div class="form-group">
+            <label for="welcomeMessage">Mensagem de Saudação do Bot</label>
+            <textarea id="welcomeMessage" class="form-control" placeholder="Mensagem inicial de boas-vindas..."></textarea>
+          </div>
+
+          <!-- Quick Action Controls -->
+          <div style="margin-top: 30px; display: flex; gap: 12px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">
+              <i class="ri-save-line"></i> Salvar Alterações
+            </button>
+            <button type="button" class="btn btn-outline" id="resetBtn">
+              Restaurar Padrão
+            </button>
+          </div>
+        </form>
+
+        <!-- Simulated Invoice Creator Section -->
+        <div class="card-title-icon" style="margin-top: 50px;">
+          <i class="ri-file-list-3-fill" style="font-size: 1.5rem; color: var(--brand-orange);"></i>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #FFF;">Gerenciador de Faturas (Fins de Simulação)</h2>
+        </div>
+
+        <form id="addInvoiceForm">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="invCpf">CPF do Cliente</label>
+              <input type="text" id="invCpf" class="form-control" placeholder="12345678900" required>
+            </div>
+            <div class="form-group">
+              <label for="invTitular">Nome Completo</label>
+              <input type="text" id="invTitular" class="form-control" placeholder="João da Silva" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="invValor">Valor da Fatura</label>
+              <input type="text" id="invValor" class="form-control" placeholder="R$ 99,90" required>
+            </div>
+            <div class="form-group">
+              <label for="invVencimento">Data de Vencimento</label>
+              <input type="text" id="invVencimento" class="form-control" placeholder="10/08/2026" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="invPlano">Plano Vinculado</label>
+            <input type="text" id="invPlano" class="form-control" placeholder="Ultra Fibra 650 Megas + TV" required>
+          </div>
+
+          <button type="submit" class="btn btn-outline" style="width: 100%;">
+            <i class="ri-add-line"></i> Adicionar/Atualizar Fatura
+          </button>
+        </form>
+
+        <!-- Listed Invoices -->
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>CPF</th>
+              <th>Nome</th>
+              <th>Plano</th>
+              <th>Vencimento</th>
+              <th>Valor</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="invoiceTableBody">
+            <!-- Populated via Javascript -->
+          </tbody>
+        </table>
+
+      </div>
+
+      <!-- Right Column: Live Chat Widget Preview -->
+      <div class="preview-box">
+        <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--gold); display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+          <i class="ri-eye-2-line"></i> Visualização em Tempo Real do Chatbot
+        </h3>
+
+        <!-- Simulated Chat Window -->
+        <div style="border: 2px solid var(--brand-orange); border-radius: 12px; height: 420px; display: flex; flex-direction: column; overflow: hidden; background: #0E0804;">
+          <!-- Header -->
+          <div style="padding: 12px 16px; background: rgba(28, 14, 7, 0.95); border-bottom: 1px solid var(--brand-orange); display: flex; align-items: center; gap: 10px;">
+            <div style="width: 8px; height: 8px; background: #25D366; border-radius: 50%;"></div>
+            <strong style="font-size: 0.9rem;">Ultra Bot (Preview)</strong>
+          </div>
+          <!-- Body Message -->
+          <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; font-size: 0.85rem;">
+            <div style="align-self: flex-start; background: rgba(36, 18, 8, 0.9); border: 1px solid rgba(255,102,0,0.3); padding: 10px 14px; border-radius: 12px; border-top-left-radius: 2px; max-width: 85%;">
+              <p id="chatWelcomePreview"></p>
+              
+              <!-- Options List Preview -->
+              <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+                <button type="button" style="padding: 8px; background: rgba(255, 102, 0, 0.1); border: 1px solid var(--brand-orange); color: var(--brand-orange-light); border-radius: 20px; font-weight: 700; text-align: left; font-size: 0.75rem;">
+                  📄 2ª Via de Fatura (CPF)
+                </button>
+                <button type="button" style="padding: 8px; background: rgba(255, 102, 0, 0.1); border: 1px solid var(--brand-orange); color: var(--brand-orange-light); border-radius: 20px; font-weight: 700; text-align: left; font-size: 0.75rem;">
+                  🚀 Assinar um Plano Fibra
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+          <i class="ri-information-line"></i> As alterações salvas neste painel alteram o comportamento e as faturas do site principal instantaneamente.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Custom Admin Portal Script -->
+  <script>
+    // Config management
+    const STORAGE_KEY = 'ultra_bot_config';
+    
+    // Default fallback configurations
+    const DEFAULT_CONFIG = {
+      whatsappNumber: '55991183681',
+      welcomeMessage: 'Olá! 👋 Sou o <strong>Ultra Bot</strong> da Ultra Fibra. Como posso te ajudar hoje?',
+      invoices: {
+        '12345678900': {
+          titular: 'João da Silva',
+          cpf: '123.456.789-00',
+          plano: 'Ultra Fibra 650 Megas Destaque + TV',
+          vencimento: '10/08/2026',
+          valor: 'R$ 99,90'
+        },
+        '98765432100': {
+          titular: 'Maria de Souza',
+          cpf: '987.654.321-00',
+          plano: 'Ultra Fibra 450 Megas',
+          vencimento: '15/08/2026',
+          valor: 'R$ 85,00'
+        }
+      }
+    };
+
+    let config = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_CONFIG;
+
+    // Elements
+    const formSettings = document.getElementById('adminSettingsForm');
+    const waInput = document.getElementById('waNumber');
+    const welcomeInput = document.getElementById('welcomeMessage');
+    const welcomePreview = document.getElementById('chatWelcomePreview');
+    const resetBtn = document.getElementById('resetBtn');
+    
+    const addInvoiceForm = document.getElementById('addInvoiceForm');
+    const invCpf = document.getElementById('invCpf');
+    const invTitular = document.getElementById('invTitular');
+    const invValor = document.getElementById('invValor');
+    const invVencimento = document.getElementById('invVencimento');
+    const invPlano = document.getElementById('invPlano');
+    const tableBody = document.getElementById('invoiceTableBody');
+
+    function saveConfig() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+      updateUI();
+    }
+
+    function updateUI() {
+      // Update form fields
+      waInput.value = config.whatsappNumber;
+      welcomeInput.value = config.welcomeMessage;
+      welcomePreview.innerHTML = config.welcomeMessage;
+
+      // Render invoice table
+      tableBody.innerHTML = '';
+      Object.keys(config.invoices).forEach(cpf => {
+        const inv = config.invoices[cpf];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${cpf}</strong></td>
+          <td>${inv.titular}</td>
+          <td>${inv.plano}</td>
+          <td>${inv.vencimento}</td>
+          <td><strong style="color: var(--brand-orange-light);">${inv.valor}</strong></td>
+          <td>
+            <button onclick="deleteInvoice('${cpf}')" style="color: #FF0055; font-weight: 700; cursor: pointer;">
+              <i class="ri-delete-bin-line"></i> Excluir
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    // Save Form settings
+    formSettings.addEventListener('submit', (e) => {
+      e.preventDefault();
+      config.whatsappNumber = waInput.value.trim();
+      config.welcomeMessage = welcomeInput.value.trim();
+      saveConfig();
+      alert("Configurações salvas com sucesso!");
+    });
+
+    // Reset settings
+    resetBtn.addEventListener('click', () => {
+      if (confirm("Deseja realmente redefinir para as configurações originais?")) {
+        config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        saveConfig();
+      }
+    });
+
+    // Add Simulated Invoice
+    addInvoiceForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const cleanCpf = invCpf.value.replace(/\D/g, '');
+      if (cleanCpf.length < 11) {
+        alert("Digite um CPF válido de 11 dígitos.");
+        return;
+      }
+
+      config.invoices[cleanCpf] = {
+        titular: invTitular.value.trim(),
+        cpf: invCpf.value.trim(),
+        plano: invPlano.value.trim(),
+        vencimento: invVencimento.value.trim(),
+        valor: invValor.value.trim()
+      };
+
+      saveConfig();
+      addInvoiceForm.reset();
+      alert("Fatura cadastrada com sucesso!");
+    });
+
+    window.deleteInvoice = function(cpf) {
+      if (confirm(`Tem certeza de que deseja excluir a fatura vinculada ao CPF ${cpf}?`)) {
+        delete config.invoices[cpf];
+        saveConfig();
+      }
+    };
+
+    // Initial load
+    updateUI();
+  </script>
+</body>
+</html>
