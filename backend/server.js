@@ -277,15 +277,22 @@ async function connectToWhatsApp() {
 
                     if (invoice) {
                         const pixKey = invoice.pix || '00020126580014BR.GOV.BCB.PIX013612345678-90ab-cdef-1234-567890abcdef520400005303986540599.905802BR5920ULTRA FIBRA TELECOM6009SAO PAULO62070503***6304E8A9';
+                        
+                        // 1. Send the details message
                         const reply = `✅ Localizamos sua fatura em aberto!\n\n` +
                                       `👤 Titular: ${invoice.titular}\n` +
                                       `⚡ Plano: ${invoice.plano}\n` +
                                       `📅 Vencimento: ${invoice.vencimento}\n` +
                                       `💵 Valor: ${invoice.valor}\n\n` +
-                                      `🔑 Código PIX Copia e Cola:\n` +
-                                      `${pixKey}\n\n` +
-                                      `Você pode visualizar a fatura digital no nosso site. Digite 0 para voltar ao menu inicial.`;
+                                      `👇 Copie o código PIX na mensagem abaixo para realizar o pagamento:`;
                         await sock.sendMessage(from, { text: reply });
+                        
+                        // 2. Send the raw PIX Copia e Cola code in a separate bubble
+                        await sock.sendMessage(from, { text: pixKey });
+                        
+                        // 3. Send the final instruction bubble
+                        await sock.sendMessage(from, { text: `Você pode visualizar a fatura digital no nosso site.\n\nDigite 0 para voltar ao menu inicial.` });
+                        
                         session.step = 'INITIAL';
                     } else {
                         await sock.sendMessage(from, { text: `❌ Nenhuma fatura em aberto cadastrada para o CPF ${cleanCpf}.\n\nDigite 0 para voltar ao menu inicial.` });
