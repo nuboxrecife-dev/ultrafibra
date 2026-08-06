@@ -478,6 +478,21 @@ app.post('/api/disconnect', async (req, res) => {
 // Run client connection
 connectToWhatsApp().catch(err => console.error("Erro ao rodar o wweb socket:", err));
 
+// --- SELF PINGER TO PREVENT RENDER SLEEP ---
+function startSelfPinger() {
+    // Ping every 5 minutes (300,000 ms)
+    setInterval(() => {
+        const https = require('https');
+        console.log('Realizando self-ping para manter o bot ativo...');
+        https.get('https://ultrafibra.onrender.com/api/status', (res) => {
+            console.log(`Self-ping response status: ${res.statusCode}`);
+        }).on('error', (err) => {
+            console.error('Self-ping error:', err.message);
+        });
+    }, 5 * 60 * 1000);
+}
+startSelfPinger();
+
 app.listen(PORT, () => {
     console.log(`Backend Baileys da Ultra Fibra rodando na porta ${PORT}`);
 });
