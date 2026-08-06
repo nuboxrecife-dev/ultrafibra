@@ -861,7 +861,7 @@
     function saveConfig() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
       updateUI();
-      syncWithBackend();
+      sendConfigToBackend();
     }
 
     function updateUI() {
@@ -999,7 +999,27 @@
     };
 
     // REST API communication with Render
+    // REST API communication with Render
     function syncWithBackend() {
+      const url = config.apiUrl || 'https://ultrafibra.onrender.com';
+      fetch(`${url}/api/config`)
+      .then(res => res.json())
+      .then(serverConfig => {
+        if (serverConfig && serverConfig.welcomeMessage) {
+          // Sync backend data to browser memory
+          config = { ...config, ...serverConfig };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+          updateUI();
+          console.log('Configurações sincronizadas com sucesso do servidor.');
+        }
+      })
+      .catch(err => {
+        console.log('Falha ao carregar do servidor. Enviando configuração local...');
+        sendConfigToBackend();
+      });
+    }
+
+    function sendConfigToBackend() {
       const url = config.apiUrl || 'https://ultrafibra.onrender.com';
       fetch(`${url}/api/config`, {
         method: 'POST',
@@ -1009,7 +1029,7 @@
         body: JSON.stringify(config)
       })
       .then(res => res.json())
-      .then(data => console.log('Sucesso na sincronização:', data))
+      .then(data => console.log('Sucesso no envio de config local:', data))
       .catch(err => console.log('Servidor de WhatsApp não sincronizado.'));
     }
 
