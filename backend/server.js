@@ -339,7 +339,7 @@ async function connectToWhatsApp() {
                 else if (session.step === 'AWAITING_SUPPORT_OPTION') {
                     if (text === '2') {
                         // Option 2: Lentidão na Conexão → Send Speedtest link
-                        const speedMsg = `📡 *Teste de Velocidade da sua Conexão*\n\nPara verificar a velocidade da sua internet, acesse o link abaixo:\n\n🔗 https://www.speedtest.net/pt\n\nApós o teste, caso o resultado esteja abaixo do contratado, entre em contato novamente que iremos te ajudar! 😊\n\nDigite 0 para voltar ao menu inicial.`;
+                        const speedMsg = `📡 *Teste de Velocidade da sua Conexão*\n\nPara verificar a velocidade da sua internet, acesse o link abaixo:\n\n[Speedtest by Ookla - Teste de Velocidade de Conexão da Internet] (https://www.speedtest.net/pt)\n\nApós o teste, caso o resultado esteja abaixo do contratado, entre em contato novamente que iremos te ajudar! 😊\n\nDigite 0 para voltar ao menu inicial.`;
                         await sock.sendMessage(from, { text: speedMsg });
                         session.step = 'INITIAL';
                     } else if (text === '1' || text === '3' || text === '4') {
