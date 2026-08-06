@@ -5,6 +5,26 @@ const { Boom } = require('@hapi/boom');
 const QRCode = require('qrcode');
 const path = require('path');
 
+// --- GLOBAL LOG COLLECTOR ---
+const logsBuffer = [];
+const originalLog = console.log;
+const originalError = console.error;
+
+console.log = (...args) => {
+    const msg = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : arg).join(' ');
+    logsBuffer.push(`[INFO] [${new Date().toISOString()}] ${msg}`);
+    if (logsBuffer.length > 200) logsBuffer.shift();
+    originalLog(...args);
+};
+
+console.error = (...args) => {
+    const msg = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : arg).join(' ');
+    logsBuffer.push(`[ERROR] [${new Date().toISOString()}] ${msg}`);
+    if (logsBuffer.length > 200) logsBuffer.shift();
+    originalError(...args);
+};
+
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -190,22 +210,22 @@ async function connectToWhatsApp() {
                                 });
 
                                 if (customerRes.ok) {
-                                    const customerData = await customerRes.json();
-                                    if (customerData.data && customerData.data.length > 0) {
-                                        const customerId = customerData.data[0].id;
-                                        const customerName = customerData.data[0].name;
-                                        console.log(`Cliente Asaas encontrado: ${customerName} (${customerId})`);
-
-                                        // 2. Fetch pending payments for this customer (fetch up to 20 to find the oldest/current one)
-                                        const paymentsUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments?customer=${customerId}&status=PENDING&limit=20`;
-                                        const paymentsRes = await fetch(paymentsUrl, {
-                                            method: 'GET',
-                                            headers: { 'access_token': dbConfig.providerToken }
-                                        });
-
-                                        if (paymentsRes.ok) {
-                                            const paymentsData = await paymentsRes.json();
-                                            if (paymentsData.data && paymentsData.data.length > 0) {
+                                     const customerData = await customerRes.json();
+                                     if (customerData.data && customerData.data.length > 0) {
+                                         const customerId = customerData.data[0].id;
+                                         const customerName = customerData.data[0].name;
+                                         console.log(`Cliente Asaas encontrado: ${customerName} (${customerId})`);
+ 
+                                         // 2. Fetch pending payments for this customer (fetch up to 20 to find the oldest/current one)
+                                         const paymentsUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments?customer=${customerId}&status=PENDING&limit=20`;
+                                         const paymentsRes = await fetch(paymentsUrl, {
+                                             method: 'GET',
+                                             headers: { 'access_token': dbConfig.providerToken }
+                                         });
+ 
+                                         if (paymentsRes.ok) {
+                                             const paymentsData = await paymentsRes.json();
+                                             if (paymentsData.data && paymentsData.data.length > 0) {
                                                  const pendingPayments = paymentsData.data;
                                                  const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
                                                  
@@ -263,10 +283,23 @@ async function connectToWhatsApp() {
                                                      pix: pixKey,
                                                      boleto: payment.bankSlipUrl || payment.invoiceUrl || ''
                                                  };
-                                            }
-                                        }
-                                    }
-                                }
+                                             } else {
+                                                 console.log(`Nenhuma fatura pendente (PENDING) encontrada no Asaas para o cliente: ${customerId}`);
+                                             }
+                                         } else {
+                                             const errorText = await paymentsRes.text();
+                                             console.error(`Erro ao buscar pagamentos do cliente ${customerId} no Asaas. Status: ${paymentsRes.status}. Body: ${errorText}`);
+                                         }
+                                     } else {
+                                         console.log(`Cliente cadastrado no Asaas mas sem dados válidos no array de retorno para o CPF: ${cleanCpf}`);
+                                     }
+                                 } else {
+                                     console.log(`Cliente com CPF ${cleanCpf} não localizado no Asaas (array vazio).`);
+                                 }
+                                 } else {
+                                     const errorText = await customerRes.text();
+                                     console.error(`Erro na requisição de busca de cliente no Asaas para o CPF ${cleanCpf}. Status: ${customerRes.status}. Body: ${errorText}`);
+                                 }
                             } else {
                                 // Generic ERP API Call
                                 console.log(`Efetuando chamada ao ERP genérico para CPF: ${cleanCpf}`);
@@ -422,6 +455,10 @@ app.get('/api/status', (req, res) => {
         status: connectionStatus,
         qr: qrCodeImage
     });
+});
+
+app.get('/api/logs', (req, res) => {
+    res.type('text/plain').send(logsBuffer.join('\n'));
 });
 
 app.post('/api/config', (req, res) => {
