@@ -202,7 +202,7 @@ async function connectToWhatsApp() {
                             const isAsaas = dbConfig.providerUrl.includes('asaas.com');
                             if (isAsaas) {
                                 console.log(`Efetuando consulta Asaas API para o CPF: ${cleanCpf}`);
-                                // 1. Find customer ID by CPF/CNPJ
+                                // 1. Find all customers by CPF/CNPJ
                                 const customerUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/customers?cpfCnpj=${cleanCpf}`;
                                 const customerRes = await fetch(customerUrl, {
                                     method: 'GET',
@@ -210,96 +210,102 @@ async function connectToWhatsApp() {
                                 });
 
                                 if (customerRes.ok) {
-                                     const customerData = await customerRes.json();
-                                     if (customerData.data && customerData.data.length > 0) {
-                                         const customerId = customerData.data[0].id;
-                                         const customerName = customerData.data[0].name;
-                                         console.log(`Cliente Asaas encontrado: ${customerName} (${customerId})`);
- 
-                                         // 2. Fetch pending payments for this customer (fetch up to 20 to find the oldest/current one)
-                                         const paymentsUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments?customer=${customerId}&status=PENDING&limit=20`;
-                                         const paymentsRes = await fetch(paymentsUrl, {
-                                             method: 'GET',
-                                             headers: { 'access_token': dbConfig.providerToken }
-                                         });
- 
-                                         if (paymentsRes.ok) {
-                                             const paymentsData = await paymentsRes.json();
-                                             if (paymentsData.data && paymentsData.data.length > 0) {
-                                                 const pendingPayments = paymentsData.data;
-                                                 const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-                                                 
-                                                 // Filter for overdue invoices (dueDate < today)
-                                                 const overduePayments = pendingPayments.filter(p => p.dueDate < todayStr);
-                                                 
-                                                 let payment = null;
-                                                 if (overduePayments.length > 0) {
-                                                     // Sort overdue ascending to select the oldest one first
-                                                     overduePayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-                                                     payment = overduePayments[0];
-                                                     console.log(`Fatura em atraso selecionada: vencimento ${payment.dueDate}`);
-                                                 } else {
-                                                     // Filter for invoices due in the current month (YYYY-MM)
-                                                     const currentYearMonth = todayStr.substring(0, 7);
-                                                     const currentMonthPayments = pendingPayments.filter(p => p.dueDate.startsWith(currentYearMonth));
-                                                     
-                                                     if (currentMonthPayments.length > 0) {
-                                                         // Sort current month ascending
-                                                         currentMonthPayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-                                                         payment = currentMonthPayments[0];
-                                                         console.log(`Fatura do mês selecionada: vencimento ${payment.dueDate}`);
-                                                     } else {
-                                                         // Fallback: select the next upcoming future invoice
-                                                         pendingPayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-                                                         payment = pendingPayments[0];
-                                                         console.log(`Sem faturas vencidas ou do mês. Selecionada próxima futura: vencimento ${payment.dueDate}`);
-                                                     }
-                                                 }
- 
-                                                 const paymentId = payment.id;
-                                                 const value = payment.value;
-                                                 const dueDate = payment.dueDate; // YYYY-MM-DD
-                                                 const formattedDate = dueDate.split('-').reverse().join('/');
-                                                 const description = payment.description || 'Fatura Internet Ultra Fibra';
-
-                                                // 3. Fetch Pix Copy-and-Paste Payload
-                                                const pixUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments/${paymentId}/pixQrCode`;
-                                                const pixRes = await fetch(pixUrl, {
-                                                    method: 'GET',
-                                                    headers: { 'access_token': dbConfig.providerToken }
-                                                });
-
-                                                let pixKey = '';
-                                                if (pixRes.ok) {
-                                                    const pixData = await pixRes.json();
-                                                    pixKey = pixData.payload || '';
+                                    const customerData = await customerRes.json();
+                                    if (customerData.data && customerData.data.length > 0) {
+                                        const pendingPayments = [];
+                                        
+                                        // Collect pending payments for all associated customer profiles
+                                        for (const customer of customerData.data) {
+                                            const customerId = customer.id;
+                                            const customerName = customer.name;
+                                            console.log(`Buscando faturas para perfil Asaas: ${customerName} (${customerId})`);
+                                            
+                                            const paymentsUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments?customer=${customerId}&status=PENDING&limit=20`;
+                                            const paymentsRes = await fetch(paymentsUrl, {
+                                                method: 'GET',
+                                                headers: { 'access_token': dbConfig.providerToken }
+                                            });
+                                            
+                                            if (paymentsRes.ok) {
+                                                const paymentsData = await paymentsRes.json();
+                                                if (paymentsData.data && paymentsData.data.length > 0) {
+                                                    paymentsData.data.forEach(p => {
+                                                        p.customerName = customerName;
+                                                        p.customerId = customerId;
+                                                        pendingPayments.push(p);
+                                                    });
                                                 }
-
-                                                 invoice = {
-                                                     titular: customerName,
-                                                     plano: description,
-                                                     vencimento: formattedDate,
-                                                     valor: `R$ ${value.toFixed(2).replace('.', ',')}`,
-                                                     pix: pixKey,
-                                                     boleto: payment.bankSlipUrl || payment.invoiceUrl || ''
-                                                 };
-                                             } else {
-                                                 console.log(`Nenhuma fatura pendente (PENDING) encontrada no Asaas para o cliente: ${customerId}`);
-                                             }
-                                         } else {
-                                             const errorText = await paymentsRes.text();
-                                             console.error(`Erro ao buscar pagamentos do cliente ${customerId} no Asaas. Status: ${paymentsRes.status}. Body: ${errorText}`);
-                                         }
-                                     } else {
-                                         console.log(`Cliente cadastrado no Asaas mas sem dados válidos no array de retorno para o CPF: ${cleanCpf}`);
-                                     }
-                                 } else {
-                                     console.log(`Cliente com CPF ${cleanCpf} não localizado no Asaas (array vazio).`);
-                                 }
-                                 } else {
-                                     const errorText = await customerRes.text();
-                                     console.error(`Erro na requisição de busca de cliente no Asaas para o CPF ${cleanCpf}. Status: ${customerRes.status}. Body: ${errorText}`);
-                                 }
+                                            } else {
+                                                const errorText = await paymentsRes.text();
+                                                console.error(`Erro ao buscar pagamentos do cliente ${customerId} no Asaas. Status: ${paymentsRes.status}. Body: ${errorText}`);
+                                            }
+                                        }
+                                        
+                                        if (pendingPayments.length > 0) {
+                                            const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+                                            
+                                            // Filter for overdue invoices (dueDate < today)
+                                            const overduePayments = pendingPayments.filter(p => p.dueDate < todayStr);
+                                            
+                                            let payment = null;
+                                            if (overduePayments.length > 0) {
+                                                // Sort overdue ascending
+                                                overduePayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                                                payment = overduePayments[0];
+                                                console.log(`Fatura em atraso selecionada: vencimento ${payment.dueDate} para ${payment.customerName}`);
+                                            } else {
+                                                // Filter for current month
+                                                const currentYearMonth = todayStr.substring(0, 7);
+                                                const currentMonthPayments = pendingPayments.filter(p => p.dueDate.startsWith(currentYearMonth));
+                                                
+                                                if (currentMonthPayments.length > 0) {
+                                                     currentMonthPayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                                                     payment = currentMonthPayments[0];
+                                                     console.log(`Fatura do mês selecionada: vencimento ${payment.dueDate} para ${payment.customerName}`);
+                                                } else {
+                                                     pendingPayments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                                                     payment = pendingPayments[0];
+                                                     console.log(`Sem faturas vencidas ou do mês. Selecionada próxima: vencimento ${payment.dueDate} para ${payment.customerName}`);
+                                                }
+                                            }
+                                            
+                                            const paymentId = payment.id;
+                                            const value = payment.value;
+                                            const dueDate = payment.dueDate; // YYYY-MM-DD
+                                            const formattedDate = dueDate.split('-').reverse().join('/');
+                                            const description = payment.description || 'Fatura Internet Ultra Fibra';
+                                            
+                                            // 3. Fetch Pix Copy-and-Paste Payload
+                                            const pixUrl = `${dbConfig.providerUrl.replace(/\/$/, '')}/payments/${paymentId}/pixQrCode`;
+                                            const pixRes = await fetch(pixUrl, {
+                                                method: 'GET',
+                                                headers: { 'access_token': dbConfig.providerToken }
+                                            });
+                                            
+                                            let pixKey = '';
+                                            if (pixRes.ok) {
+                                                const pixData = await pixRes.json();
+                                                pixKey = pixData.payload || '';
+                                            }
+                                            
+                                            invoice = {
+                                                titular: payment.customerName,
+                                                plano: description,
+                                                vencimento: formattedDate,
+                                                valor: `R$ ${value.toFixed(2).replace('.', ',')}`,
+                                                pix: pixKey,
+                                                boleto: payment.bankSlipUrl || payment.invoiceUrl || ''
+                                            };
+                                        } else {
+                                            console.log(`Nenhuma fatura pendente (PENDING) encontrada nos perfis associados ao CPF ${cleanCpf}`);
+                                        }
+                                    } else {
+                                        console.log(`Nenhum cliente cadastrado no Asaas para o CPF: ${cleanCpf}`);
+                                    }
+                                } else {
+                                    const errorText = await customerRes.text();
+                                    console.error(`Erro na requisição de busca de cliente no Asaas para o CPF ${cleanCpf}. Status: ${customerRes.status}. Body: ${errorText}`);
+                                }
                             } else {
                                 // Generic ERP API Call
                                 console.log(`Efetuando chamada ao ERP genérico para CPF: ${cleanCpf}`);
