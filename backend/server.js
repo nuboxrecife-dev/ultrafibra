@@ -426,6 +426,10 @@ app.get('/api/status', (req, res) => {
 
 app.post('/api/config', (req, res) => {
     if (req.body) {
+        // Bloqueia a mensagem antiga se vier do cache de algum navegador
+        if (req.body.supportMessage && req.body.supportMessage.includes('descreva qual o problema ou lentidão')) {
+            delete req.body.supportMessage;
+        }
         dbConfig = { ...dbConfig, ...req.body };
         // Save to file persistently
         try {
