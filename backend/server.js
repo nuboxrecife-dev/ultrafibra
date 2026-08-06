@@ -31,7 +31,7 @@ let dbConfig = {
     providerToken: Buffer.from('JGFhY3RfcHJvZF8wMDBNemt3T0RBMk1XWTJPR00zTVdSbE1EVTJOV00zTXpKbE56Wm1OR1poWkdZNk9tTTFNR0ZpTkRnNExUZ3daRGd0TkdNMlpDMWlaVGhtTFRGaVl6ZzVNelptTkRObE5UbzZKR0ZoWTJoZk0yWTRNekUxWkRjdE5UTXdOaTAwWlRZMExXRmxPREl0T0RReU56azBNMlkwT0RWawo=', 'base64').toString('utf8').trim(),
     welcomeMessage: 'Olá! 👋 Sou o Ultra Bot da Ultra Fibra. Como posso te ajudar hoje?\n\n1️⃣ - Assinar um Plano\n2️⃣ - Segunda Via de Fatura\n3️⃣ - Suporte Técnico\n\nPor favor, responda digitando apenas o número da opção desejada.',
     planMessage: 'Planos de Internet Ultra Fibra disponíveis:\n\n⚡ 350 Megas - R$ 70,00/mês\n⚡ 450 Megas - R$ 85,00/mês (Canais, Filmes e Séries)\n⚡ 650 Megas - R$ 99,90/mês (★ Plano Destaque + Canais, Filmes e Séries)\n\n🤖 Estou transferindo seu atendimento para um atendente humano finalizar sua assinatura. Aguarde um instante...',
-    supportMessage: 'Por favor, selecione qual a sua solicitação ou problema de suporte:\n\n1️⃣ - Troca de Senha\n2️⃣ - Lentidão na Conexão\n3️⃣ - Mudança de Endereço\n4️⃣ - Outros\n\nPor favor, responda digitando apenas o número correspondente.',
+    supportMessage: 'Descreva qual o seu problemas:\n\n"Opção 1 - Troca de Senha"\n"Opção 2 - Lentidão na Conexão"\n"Opção 3 - Mudança de Endereço"\nOpção 4 " Outros "',
     adminUsers: [
         { username: 'admin', password: 'admin123', name: 'Administrador', role: 'admin', createdAt: '2026-08-05' }
     ],
